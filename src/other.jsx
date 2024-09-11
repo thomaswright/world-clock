@@ -2,13 +2,42 @@ import { CustomProjection, Graticule } from "@visx/geo";
 import { useEffect, useState } from "react";
 import * as topojson from "topojson-client";
 import topology from "./world-topo.json";
-import { geoRotation, geoContains, geoAzimuthalEqualArea } from "d3";
+import {
+  geoRotation,
+  geoContains,
+  geoAzimuthalEqualArea,
+  geoCircle,
+  geoPath,
+} from "d3";
 const world = topojson.feature(topology, topology.objects.units);
+import * as solar from "solar-calculator";
+
+let antipode = ([lon, lat]) => [lon + 180, -lat];
+
+let getSun = () => {
+  const now = new Date();
+  const day = new Date(+now).setUTCHours(0, 0, 0, 0);
+  const t = solar.century(now);
+  const longitude = ((day - now) / 864e5) * 360 - 180;
+  // return [90, 0];
+  return [longitude - solar.equationOfTime(t) / 4, solar.declination(t)];
+};
+
+let sun = [-306.7858262609864, 4.314477025844753]; //getSun();
+
+console.log(sun, solar);
+
+const width = 500;
+const height = 500;
+
+let projection = geoAzimuthalEqualArea;
+let projectionPath = geoPath(projection());
+
+let sunPath = geoCircle().radius(90).center(sun);
+
+let nightPath = geoCircle().radius(90).center(antipode(sun));
 
 const Main = () => {
-  const width = 500;
-  const height = 500;
-
   const padding = 10;
 
   const centerX = width / 2;
@@ -48,7 +77,7 @@ const Main = () => {
   let mapSvg = (colors) => (
     <CustomProjection
       data={world.features}
-      projection={geoAzimuthalEqualArea}
+      projection={projection}
       // scale={scale}
       // translate={[centerX, centerY]}
       // fitExtent={[
@@ -100,17 +129,24 @@ const Main = () => {
   );
 
   return (
-    <div className="relative w-fit p-6">
+    <div className="relative w-fit">
       <svg width={width} height={height}>
         <defs>
           <clipPath id="halfClip">
-            <rect
+            <path
+              d={projectionPath(nightPath())}
+              fill={"rgba(0,0,255,0.3"}
+              transform={`rotate(0, ${width / 2}, ${
+                height / 2
+              }) translate(-230, 0) `}
+            />
+            {/* <rect
               x="0"
               y="0"
               width={width / 2}
               height={height}
               transform={`rotate(45, ${width / 2}, ${height / 2})`}
-            />
+            /> */}
           </clipPath>
 
           <filter id="invertFilter">
@@ -123,7 +159,12 @@ const Main = () => {
         </defs>
 
         {mapSvg(dayColors)}
-        <g clip-path="url(#halfClip)">{mapSvg(nightColors)}</g>
+        {/* <path
+          d={projectionPath(night())}
+          fill={"rgba(255,0,255,0.3"}
+          transform="translate(-230, 0)"
+        /> */}
+        <g clipPath="url(#halfClip)">{mapSvg(nightColors)}</g>
       </svg>
     </div>
   );
