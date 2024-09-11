@@ -8,6 +8,7 @@ import {
   geoAzimuthalEqualArea,
   geoCircle,
   geoPath,
+  geoNaturalEarth1,
 } from "d3";
 const world = topojson.feature(topology, topology.objects.units);
 import * as solar from "solar-calculator";
@@ -23,15 +24,27 @@ let getSun = () => {
   return [longitude - solar.equationOfTime(t) / 4, solar.declination(t)];
 };
 
-let sun = [-306.7858262609864, 4.314477025844753]; //getSun();
-
-console.log(sun, solar);
+let sun = getSun();
+let projection = () => {
+  return geoAzimuthalEqualArea().rotate([0, -90, 0]);
+};
+let projectionPath = geoPath(projection());
 
 const width = 500;
-const height = 500;
 
-let projection = geoAzimuthalEqualArea;
-let projectionPath = geoPath(projection());
+const getHeight = () => {
+  const [[x0, y0], [x1, y1]] = geoPath(
+    projection().fitWidth(width, { type: "Sphere" })
+  ).bounds({ type: "Sphere" });
+  const dy = Math.ceil(y1 - y0),
+    l = Math.min(Math.ceil(x1 - x0), dy);
+  projection()
+    .scale((projection().scale() * (l - 1)) / l)
+    .precision(0.2);
+  return dy;
+};
+
+const height = getHeight();
 
 let sunPath = geoCircle().radius(90).center(sun);
 
@@ -78,17 +91,7 @@ const Main = () => {
     <CustomProjection
       data={world.features}
       projection={projection}
-      // scale={scale}
-      // translate={[centerX, centerY]}
-      // fitExtent={[
-      //   [
-      //     [padding, padding],
-      //     [width - padding, height - padding],
-      //   ],
-      //   world,
-      // ]}
       translate={[centerX, centerY]}
-      rotate={[angle, -90, 0]}
     >
       {(projection) => {
         return (
@@ -129,42 +132,21 @@ const Main = () => {
   );
 
   return (
-    <div className="relative w-fit">
+    <div className="relative w-fit p-6">
       <svg width={width} height={height}>
         <defs>
-          <clipPath id="halfClip">
+          <clipPath id="nightClip">
             <path
               d={projectionPath(nightPath())}
-              fill={"rgba(0,0,255,0.3"}
               transform={`rotate(0, ${width / 2}, ${
                 height / 2
               }) translate(-230, 0) `}
             />
-            {/* <rect
-              x="0"
-              y="0"
-              width={width / 2}
-              height={height}
-              transform={`rotate(45, ${width / 2}, ${height / 2})`}
-            /> */}
           </clipPath>
-
-          <filter id="invertFilter">
-            <feComponentTransfer>
-              <feFuncR type="table" tableValues="1 0" />
-              <feFuncG type="table" tableValues="1 0" />
-              <feFuncB type="table" tableValues="1 0" />
-            </feComponentTransfer>
-          </filter>
         </defs>
 
         {mapSvg(dayColors)}
-        {/* <path
-          d={projectionPath(night())}
-          fill={"rgba(255,0,255,0.3"}
-          transform="translate(-230, 0)"
-        /> */}
-        <g clipPath="url(#halfClip)">{mapSvg(nightColors)}</g>
+        <g clipPath="url(#nightClip)">{mapSvg(nightColors)}</g>
       </svg>
     </div>
   );
