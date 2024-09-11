@@ -171,6 +171,7 @@ const nightColors = {
   graticule: "#442000",
   land: "#ff6100",
   border: "#442000",
+  city: "#fff", //"#fff0e7",
 };
 
 const dayColors = {
@@ -178,6 +179,7 @@ const dayColors = {
   graticule: "#c2deff",
   land: "#00b0ff",
   border: "#004e70",
+  city: "#000", //"#001420",
 };
 
 const Timezone = ({ flipLabel, city, timezone, color }) => {
@@ -312,7 +314,7 @@ const Main = () => {
                       rx={pointRadius}
                       width={pointDiameter}
                       height={pointDiameter}
-                      fill={isNight ? dayColors.sea : nightColors.sea}
+                      fill={isNight ? nightColors.city : dayColors.city}
                     />
                   </g>
                 );
