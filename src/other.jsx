@@ -5,6 +5,7 @@ import topology from "./world-topo.json";
 import { geoAzimuthalEqualArea, geoCircle, geoPath } from "d3";
 const world = topojson.feature(topology, topology.objects.units);
 import * as solar from "solar-calculator";
+import * as cityTimeZones from "city-timezones";
 
 let antipode = ([lon, lat]) => [lon + 180, -lat];
 
@@ -56,23 +57,95 @@ function rotatePoint(x, y, angle) {
   return [xNew, yNew];
 }
 
+let initialCities = [
+  {
+    city: "Seoul",
+    city_ascii: "Seoul",
+    lat: 37.5663491,
+    lng: 126.999731,
+    pop: 9796000,
+    country: "South Korea",
+    iso2: "KR",
+    iso3: "KOR",
+    province: "Seoul",
+    timezone: "Asia/Seoul",
+  },
+  {
+    city: "London",
+    city_ascii: "London",
+    lat: 51.49999473,
+    lng: -0.116721844,
+    pop: 7994104.5,
+    country: "United Kingdom",
+    iso2: "GB",
+    iso3: "GBR",
+    province: "Westminster",
+    timezone: "Europe/London",
+  },
+  {
+    city: "Chicago",
+    city_ascii: "Chicago",
+    lat: 41.82999066,
+    lng: -87.75005497,
+    pop: 5915976,
+    country: "United States of America",
+    iso2: "US",
+    iso3: "USA",
+    province: "Illinois",
+    exactCity: "Chicago",
+    exactProvince: "IL",
+    state_ansi: "IL",
+    timezone: "America/Chicago",
+  },
+];
+
+function getTimeStringInTimezone(timezone) {
+  const now = new Date();
+  return now.toLocaleString("en-US", {
+    timeZone: timezone,
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: false,
+  });
+}
+
+const nightColors = {
+  sea: "#000",
+  graticule: "#442000",
+  land: "#ff6100",
+  border: "#442000",
+};
+
+const dayColors = {
+  sea: "#fff",
+  graticule: "#c2deff",
+  land: "#00b0ff",
+  border: "#004e70",
+};
+const Timezone = ({ flipLabel, city, timezone }) => {
+  const [now, setNow] = useState("");
+
+  useEffect(() => {
+    let id = setInterval(() => {
+      setNow(city + " " + getTimeStringInTimezone(timezone));
+    }, 100);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <text textAnchor={flipLabel ? "end" : "start"} fill={nightColors.land}>
+      {now}
+    </text>
+  );
+};
+
 const Main = () => {
+  let [cities, setCities] = useState(initialCities);
+
+  //cityTimeZones.findFromCityStateProvince(location)
+
   const centerX = width / 2;
   const centerY = height / 2;
-
-  const nightColors = {
-    sea: "#000",
-    graticule: "#442000",
-    land: "#ff6100",
-    border: "#442000",
-  };
-
-  const dayColors = {
-    sea: "#fff",
-    graticule: "#c2deff",
-    land: "#00b0ff",
-    border: "#004e70",
-  };
 
   let [angle, setAngle] = useState(0);
 
@@ -164,7 +237,8 @@ const Main = () => {
         <div className="absolute top-0 left-0 font-mono">
           <svg width={width + paddingX} height={height + paddingY}>
             <g>
-              {[0, 90, 45, 180, 160].map((lon) => {
+              {cities.map(({ lng, city, timezone }) => {
+                let lon = -lng + 90;
                 let x = centerX + 20;
                 let y = 0;
                 let flipLabel = lon > 90 && lon < 270;
@@ -175,7 +249,7 @@ const Main = () => {
                     })`}
                   >
                     <rect
-                      x={x + 1}
+                      x={x}
                       y={y}
                       transform={`rotate(${lon}, 0,0)`}
                       width={"40"}
@@ -193,7 +267,7 @@ const Main = () => {
                         }, 0,0) translate(-1, 0)`}
                       >
                         <rect
-                          x={0}
+                          x={1}
                           y={0}
                           width={"20"}
                           height={"2"}
@@ -206,12 +280,11 @@ const Main = () => {
                             (flipLabel ? "translate(0, 1)" : "translate(0, 3)")
                           }
                         >
-                          <text
-                            textAnchor={flipLabel ? "end" : "start"}
-                            fill={nightColors.land}
-                          >
-                            Hello Everybody
-                          </text>
+                          <Timezone
+                            flipLabel={flipLabel}
+                            city={city}
+                            timezone={timezone}
+                          />
                         </g>
                       </g>
                     </g>
