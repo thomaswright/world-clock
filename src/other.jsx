@@ -2,7 +2,13 @@ import { CustomProjection, Graticule } from "@visx/geo";
 import { useEffect, useState } from "react";
 import * as topojson from "topojson-client";
 import topology from "./world-topo.json";
-import { geoAzimuthalEqualArea, geoCircle, geoPath } from "d3";
+import {
+  geoAzimuthalEqualArea,
+  geoCircle,
+  geoPath,
+  geoContains,
+  geoConicConformal,
+} from "d3";
 const world = topojson.feature(topology, topology.objects.units);
 import * as solar from "solar-calculator";
 import * as cityTimeZones from "city-timezones";
@@ -71,6 +77,30 @@ let initialCities = [
     timezone: "Asia/Seoul",
   },
   {
+    city: "Beijing",
+    city_ascii: "Beijing",
+    lat: 39.92889223,
+    lng: 116.3882857,
+    pop: 9293300.5,
+    country: "China",
+    iso2: "CN",
+    iso3: "CHN",
+    province: "Beijing",
+    timezone: "Asia/Shanghai",
+  },
+  {
+    city: "Mumbai",
+    city_ascii: "Mumbai",
+    lat: 19.01699038,
+    lng: 72.8569893,
+    pop: 15834918,
+    country: "India",
+    iso2: "IN",
+    iso3: "IND",
+    province: "Maharashtra",
+    timezone: "Asia/Kolkata",
+  },
+  {
     city: "London",
     city_ascii: "London",
     lat: 51.49999473,
@@ -82,20 +112,46 @@ let initialCities = [
     province: "Westminster",
     timezone: "Europe/London",
   },
+  // {
+  //   city: "Chicago",
+  //   city_ascii: "Chicago",
+  //   lat: 41.82999066,
+  //   lng: -87.75005497,
+  //   pop: 5915976,
+  //   country: "United States of America",
+  //   iso2: "US",
+  //   iso3: "USA",
+  //   province: "Illinois",
+  //   exactCity: "Chicago",
+  //   exactProvince: "IL",
+  //   state_ansi: "IL",
+  //   timezone: "America/Chicago",
+  // },
   {
-    city: "Chicago",
-    city_ascii: "Chicago",
-    lat: 41.82999066,
-    lng: -87.75005497,
-    pop: 5915976,
+    city: "New York",
+    city_ascii: "New York",
+    lat: 40.74997906,
+    lng: -73.98001693,
+    pop: 13524139,
     country: "United States of America",
     iso2: "US",
     iso3: "USA",
-    province: "Illinois",
-    exactCity: "Chicago",
-    exactProvince: "IL",
-    state_ansi: "IL",
-    timezone: "America/Chicago",
+    province: "New York",
+    state_ansi: "NY",
+    timezone: "America/New_York",
+  },
+  {
+    city: "San Francisco",
+    city_ascii: "San Francisco",
+    lat: 37.74000775,
+    lng: -122.4599777,
+    pop: 2091036,
+    country: "United States of America",
+    iso2: "US",
+    iso3: "USA",
+    province: "California",
+    state_ansi: "CA",
+    timezone: "America/Los_Angeles",
   },
 ];
 
@@ -123,7 +179,8 @@ const dayColors = {
   land: "#00b0ff",
   border: "#004e70",
 };
-const Timezone = ({ flipLabel, city, timezone }) => {
+
+const Timezone = ({ flipLabel, city, timezone, color }) => {
   const [now, setNow] = useState("");
 
   useEffect(() => {
@@ -133,7 +190,7 @@ const Timezone = ({ flipLabel, city, timezone }) => {
     return () => clearInterval(id);
   }, []);
   return (
-    <text textAnchor={flipLabel ? "end" : "start"} fill={nightColors.land}>
+    <text textAnchor={flipLabel ? "end" : "start"} fill={color}>
       {now}
     </text>
   );
@@ -237,11 +294,36 @@ const Main = () => {
         <div className="absolute top-0 left-0 font-mono">
           <svg width={width + paddingX} height={height + paddingY}>
             <g>
-              {cities.map(({ lng, city, timezone }) => {
-                let lon = -lng + 90;
+              {cities.map(({ lat: cityLat, lng: cityLon, city, timezone }) => {
+                let [x, y] = projection()([cityLon, cityLat]);
+                let isNight = geoContains(nightPath(), [cityLon, cityLat]);
+                let pointDiameter = 5;
+                let pointRadius = pointDiameter / 2;
+
+                return (
+                  <g
+                    transform={`translate(${70 - pointRadius}, ${
+                      paddingY / 2 - pointRadius
+                    })`}
+                  >
+                    <rect
+                      x={x}
+                      y={y}
+                      rx={pointRadius}
+                      width={pointDiameter}
+                      height={pointDiameter}
+                      fill={isNight ? dayColors.sea : nightColors.sea}
+                    />
+                  </g>
+                );
+              })}
+              {cities.map(({ lat: cityLat, lng: cityLon, city, timezone }) => {
+                let lon = -cityLon + 90;
                 let x = centerX + 20;
                 let y = 0;
                 let flipLabel = lon > 90 && lon < 270;
+                let isNight = geoContains(nightPath(), [cityLon, cityLat]);
+                let color = isNight ? nightColors.land : dayColors.land;
                 return (
                   <g
                     transform={`translate(${centerX + paddingX / 2}, ${
@@ -254,7 +336,7 @@ const Main = () => {
                       transform={`rotate(${lon}, 0,0)`}
                       width={"40"}
                       height={"2"}
-                      fill={nightColors.land}
+                      fill={color}
                     />
                     <g
                       transform={`rotate(${lon}, 0, 0) translate(${
@@ -271,7 +353,7 @@ const Main = () => {
                           y={0}
                           width={"20"}
                           height={"2"}
-                          fill={nightColors.land}
+                          fill={color}
                         />
                         <g
                           transform={
@@ -284,6 +366,7 @@ const Main = () => {
                             flipLabel={flipLabel}
                             city={city}
                             timezone={timezone}
+                            color={color}
                           />
                         </g>
                       </g>
