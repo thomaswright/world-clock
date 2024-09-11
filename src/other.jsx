@@ -2,25 +2,18 @@ import { CustomProjection, Graticule } from "@visx/geo";
 import { useEffect, useState } from "react";
 import * as topojson from "topojson-client";
 import topology from "./world-topo.json";
-import {
-  geoRotation,
-  geoContains,
-  geoAzimuthalEqualArea,
-  geoCircle,
-  geoPath,
-  geoNaturalEarth1,
-} from "d3";
+import { geoAzimuthalEqualArea, geoCircle, geoPath } from "d3";
 const world = topojson.feature(topology, topology.objects.units);
 import * as solar from "solar-calculator";
 
 let antipode = ([lon, lat]) => [lon + 180, -lat];
 
+// sun code from https://observablehq.com/@d3/solar-terminator
 let getSun = () => {
   const now = new Date();
   const day = new Date(+now).setUTCHours(0, 0, 0, 0);
   const t = solar.century(now);
   const longitude = ((day - now) / 864e5) * 360 - 180;
-  // return [90, 0];
   return [longitude - solar.equationOfTime(t) / 4, solar.declination(t)];
 };
 
@@ -50,24 +43,34 @@ let sunPath = geoCircle().radius(90).center(sun);
 
 let nightPath = geoCircle().radius(90).center(antipode(sun));
 
-const Main = () => {
-  const padding = 10;
+function rotatePoint(x, y, angle) {
+  // Convert the angle from degrees to radians (if necessary)
+  const radians = (angle * Math.PI) / 180;
 
+  const cosTheta = Math.cos(radians); // angle in radians
+  const sinTheta = Math.sin(radians);
+
+  const xNew = x * cosTheta - y * sinTheta;
+  const yNew = x * sinTheta + y * cosTheta;
+
+  return [xNew, yNew];
+}
+
+const Main = () => {
   const centerX = width / 2;
   const centerY = height / 2;
-  const scale = (width / 630) * 100;
 
   const nightColors = {
     sea: "#000",
     graticule: "#442000",
-    land: "#ff6a0f",
+    land: "#ff6100",
     border: "#442000",
   };
 
   const dayColors = {
     sea: "#fff",
     graticule: "#c2deff",
-    land: "#00a6f0",
+    land: "#00b0ff",
     border: "#004e70",
   };
 
@@ -86,6 +89,9 @@ const Main = () => {
   //   }, 10);
   //   return () => clearInterval(id);
   // }, []);
+
+  let paddingX = 600;
+  let paddingY = 200;
 
   let mapSvg = (colors) => (
     <CustomProjection
@@ -132,22 +138,91 @@ const Main = () => {
   );
 
   return (
-    <div className="relative w-fit p-6">
-      <svg width={width} height={height}>
-        <defs>
-          <clipPath id="nightClip">
-            <path
-              d={projectionPath(nightPath())}
-              transform={`rotate(0, ${width / 2}, ${
-                height / 2
-              }) translate(-230, 0) `}
-            />
-          </clipPath>
-        </defs>
+    <div className=" w-fit p-6">
+      <div className="relative">
+        <div
+          style={{
+            paddingLeft: paddingX / 2 + "px",
+            paddingTop: paddingY / 2 + "px",
+          }}
+        >
+          <svg width={width} height={height}>
+            <defs>
+              <clipPath id="nightClip">
+                <path
+                  d={projectionPath(nightPath())}
+                  transform={`rotate(0, ${centerX}, ${centerY}) translate(-230, 0) `}
+                />
+              </clipPath>
+            </defs>
 
-        {mapSvg(dayColors)}
-        <g clipPath="url(#nightClip)">{mapSvg(nightColors)}</g>
-      </svg>
+            {mapSvg(dayColors)}
+            <g clipPath="url(#nightClip)">{mapSvg(nightColors)}</g>
+          </svg>
+        </div>
+
+        <div className="absolute top-0 left-0 font-mono">
+          <svg width={width + paddingX} height={height + paddingY}>
+            <g>
+              {[0, 90, 45, 180, 160].map((lon) => {
+                let x = centerX + 20;
+                let y = 0;
+                let flipLabel = lon > 90 && lon < 270;
+                return (
+                  <g
+                    transform={`translate(${centerX + paddingX / 2}, ${
+                      centerY + paddingY / 2
+                    })`}
+                  >
+                    <rect
+                      x={x + 1}
+                      y={y}
+                      transform={`rotate(${lon}, 0,0)`}
+                      width={"40"}
+                      height={"2"}
+                      fill={nightColors.land}
+                    />
+                    <g
+                      transform={`rotate(${lon}, 0, 0) translate(${
+                        x + 40
+                      }, ${y}) `}
+                    >
+                      <g
+                        transform={`rotate(${
+                          flipLabel ? -lon + 180 : -lon
+                        }, 0,0) translate(-1, 0)`}
+                      >
+                        <rect
+                          x={0}
+                          y={0}
+                          width={"20"}
+                          height={"2"}
+                          fill={nightColors.land}
+                        />
+                        <g
+                          transform={
+                            "translate(30, 0) " +
+                            (flipLabel ? "rotate(180, 0, 0) " : " ") +
+                            (flipLabel ? "translate(0, 1)" : "translate(0, 3)")
+                          }
+                        >
+                          <text
+                            textAnchor={flipLabel ? "end" : "start"}
+                            className={flipLabel ? "flip-label" : ""}
+                            fill={nightColors.land}
+                          >
+                            Hello Everybody
+                          </text>
+                        </g>
+                      </g>
+                    </g>
+                  </g>
+                );
+              })}
+            </g>
+          </svg>
+        </div>
+      </div>
     </div>
   );
 };
