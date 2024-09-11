@@ -5,7 +5,3 @@
 html {
   @apply bg-black;
 }
-
-.flip-label {
-  direction: "rtl";
-}

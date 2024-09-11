@@ -208,7 +208,6 @@ const Main = () => {
                         >
                           <text
                             textAnchor={flipLabel ? "end" : "start"}
-                            className={flipLabel ? "flip-label" : ""}
                             fill={nightColors.land}
                           >
                             Hello Everybody
