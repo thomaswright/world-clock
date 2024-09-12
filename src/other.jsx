@@ -1,5 +1,5 @@
 import { CustomProjection, Graticule } from "@visx/geo";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import * as topojson from "topojson-client";
 import topology from "./world-topo.json";
 import {
@@ -174,6 +174,11 @@ const dayColors = {
   city: "#000", //"#001420",
 };
 
+const weekdayColors = {
+  day1: "#3372df",
+  day2: "#1c7e00",
+};
+
 function getDayOfYear(date) {
   const start = new Date(date.getFullYear(), 0, 1);
   const diff = date - start;
@@ -218,16 +223,21 @@ function crest(x) {
 }
 
 const SvgArc = ({
+  id,
+  text,
   cx,
   cy,
   r,
   startAngle,
   endAngle,
-  largeArcFlag,
-  sweepFlag,
-  stroke = "none",
-  fill = "red",
+  clockwise,
+  stroke = "red",
+  fill = "transparent",
+  strokeWidth = 1,
 }) => {
+  const [pathLength, setPathLength] = useState(0);
+  const pathRef = useRef(null);
+
   // Convert angles from degrees to radians
   const startAngleRad = (startAngle * Math.PI) / 180;
   const endAngleRad = (endAngle * Math.PI) / 180;
@@ -240,12 +250,49 @@ const SvgArc = ({
   const x2 = cx + r * Math.cos(endAngleRad);
   const y2 = cy + r * Math.sin(endAngleRad);
 
+  const calcStartOffset = (percentage, extraPx, pathLength) => {
+    return percentage * pathLength + extraPx;
+  };
+
+  useEffect(() => {
+    if (pathRef.current) {
+      setPathLength(pathRef.current.getTotalLength());
+    }
+  }, []);
+
   return (
-    <path
-      d={`M ${x1} ${y1} A ${r} ${r} 0 ${largeArcFlag} ${sweepFlag} ${x2} ${y2}`}
-      stroke={stroke}
-      fill={fill}
-    />
+    <g>
+      <path
+        ref={pathRef}
+        id={id}
+        d={`M ${x1} ${y1} A ${r} ${r} 0 ${clockwise ? 0 : 1} ${
+          clockwise ? 1 : 0
+        } ${x2} ${y2}`}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+        fill={fill}
+      />
+      <text fill={stroke} fontSize="16">
+        <textPath
+          href={`#${id}`}
+          startOffset="10px"
+          textAnchor="start"
+          side={clockwise ? "left" : "right"}
+        >
+          {text}
+        </textPath>
+      </text>
+      <text fill={stroke} fontSize="16">
+        <textPath
+          href={`#${id}`}
+          startOffset={calcStartOffset(1.0, -10, pathLength)}
+          textAnchor="end"
+          side={clockwise ? "left" : "right"}
+        >
+          {text}
+        </textPath>
+      </text>
+    </g>
   );
 };
 
@@ -313,13 +360,38 @@ const Main = () => {
     let [sunLon, _] = getSun();
     let dayEndAngle = -(totalRotation + 90);
     let dayStartAngle = -(totalRotation + sunLon) - 90;
+    let strokeWidth = 3;
     return (
       <g
         transform={`translate(${centerX + paddingX / 2}, ${
           centerY + paddingY / 2
         })`}
       >
-        <rect
+        <SvgArc
+          id={"clockwise"}
+          text={"wednesday"}
+          cx={0}
+          cy={0}
+          r={centerX + 5}
+          startAngle={dayStartAngle}
+          endAngle={dayEndAngle}
+          clockwise={true}
+          stroke={weekdayColors.day1}
+          strokeWidth={strokeWidth}
+        />
+        <SvgArc
+          id={"counter-clockwise"}
+          text={"thursday"}
+          cx={0}
+          cy={0}
+          r={centerX + 5}
+          startAngle={dayStartAngle}
+          endAngle={dayEndAngle}
+          clockwise={false}
+          stroke={weekdayColors.day2}
+          strokeWidth={strokeWidth}
+        />
+        {/* <rect
           x={centerX}
           y={0}
           transform={`rotate(${dayStartAngle}, 0,0)`}
@@ -334,7 +406,7 @@ const Main = () => {
           width={40}
           height={"4"}
           fill={nightColors.land}
-        />
+        /> */}
       </g>
     );
   };
