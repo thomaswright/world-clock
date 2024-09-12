@@ -373,23 +373,21 @@ const Main = () => {
   let now = new Date();
 
   let [cities, setCities] = useState(initialCities);
-  let [inputDate, setInputDate] = useState(
-    new Date(now.getTime() + 1000 * 60 * 60 * 10)
-  );
+  let [inputDate, setInputDate] = useState(new Date(now.getTime()));
   let [nowDate, setNowDate] = useState(new Date());
   let pickedDate = Boolean(inputDate) ? inputDate : nowDate;
 
-  // useEffect(() => {
-  //   let updateStep = 5000;
+  useEffect(() => {
+    let updateStep = 5000;
 
-  //   let id = setInterval(() => {
-  //     setNowDate(new Date());
-  //     setInputDate((v) =>
-  //       Boolean(v) ? new Date(v.getTime() + updateStep) : v
-  //     );
-  //   }, updateStep);
-  //   return () => clearInterval(id);
-  // }, []);
+    let id = setInterval(() => {
+      setNowDate(new Date());
+      setInputDate((v) =>
+        Boolean(v) ? new Date(v.getTime() + updateStep) : v
+      );
+    }, updateStep);
+    return () => clearInterval(id);
+  }, []);
 
   let currentNightPath = getNightPath(pickedDate)();
   let dateRotation = getDateRotation(pickedDate);
@@ -578,7 +576,15 @@ const Main = () => {
                       r={pointRadius}
                       stroke={"black"}
                       strokeWidth={1}
-                      fill={isDay2 ? weekdayColors.day2 : weekdayColors.day1}
+                      fill={
+                        isDay2
+                          ? isNight
+                            ? "#fff"
+                            : weekdayColors.day2
+                          : isNight
+                          ? weekdayColors.day1
+                          : "#000"
+                      }
                     />
                   </g>
                 );
@@ -587,14 +593,16 @@ const Main = () => {
                 let cityAngle = -(totalRotation + cityLon) + 90;
                 let x = centerX + 30;
                 let y = 0;
-                let flipLabel = cityAngle > 90 && cityAngle < 270;
+                let flipLabel =
+                  (cityAngle >= 90 && cityAngle < 270) ||
+                  (cityAngle > -270 && cityAngle <= -90);
+
                 let cityAngleRads = ((2 * cityAngle) / 180) * Math.PI;
 
                 let additionalDist = crest(cityAngleRads) * 50;
 
                 let isNight = geoContains(currentNightPath, [cityLon, cityLat]);
                 let isDay2 = getIsDay2(pickedDate, timezone);
-
                 let color = isDay2 ? weekdayColors.day2 : weekdayColors.day1;
 
                 return (
