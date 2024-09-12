@@ -245,7 +245,7 @@ const Main = () => {
   // }, []);
 
   let paddingX = 600;
-  let paddingY = 400;
+  let paddingY = 300;
 
   let offsetX = 50;
   let offsetY = 100;
