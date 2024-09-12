@@ -177,8 +177,8 @@ const dayColors = {
 };
 
 const weekdayColors = {
-  day1: "#00abff", // "#ffa900", // "#3372df",
-  day2: "#ffd300", // "#f40", //"#1c7e00",
+  day1: "#00b0ff", // "#ffa900", // "#3372df",
+  day2: "#ff6100", // "#f40", //"#1c7e00",
 };
 
 function getDayOfYear(date) {
@@ -207,7 +207,7 @@ function getDayRotation(time) {
 let day2Timezone = "Pacific/Auckland";
 let day1Timezone = "America/Adak";
 
-function getIsDay2(timezone, referenceDate = new Date()) {
+function getIsDay2(referenceDate, timezone) {
   const a = referenceDate.toLocaleDateString("en-US", {
     timeZone: timezone,
     year: "numeric",
@@ -224,14 +224,14 @@ function getIsDay2(timezone, referenceDate = new Date()) {
   return a === b;
 }
 
-function getDay2String(referenceDate = new Date()) {
+function getDay2String(referenceDate) {
   return referenceDate.toLocaleDateString("en-US", {
     timeZone: day2Timezone,
     weekday: "long",
   });
 }
 
-function getDay1String(referenceDate = new Date()) {
+function getDay1String(referenceDate) {
   return referenceDate.toLocaleDateString("en-US", {
     timeZone: day1Timezone,
     weekday: "long",
@@ -455,7 +455,7 @@ const Main = () => {
       >
         <SvgArc
           id={"clockwise"}
-          text={getDay1String()}
+          text={getDay1String(time)}
           cx={0}
           cy={0}
           r={centerX + 5}
@@ -468,7 +468,7 @@ const Main = () => {
         />
         <SvgArc
           id={"counter-clockwise"}
-          text={getDay2String()}
+          text={getDay2String(time)}
           cx={0}
           cy={0}
           r={centerX + 5}
@@ -568,7 +568,7 @@ const Main = () => {
                 let isNight = geoContains(currentNightPath, [cityLon, cityLat]);
                 let pointDiameter = 6;
                 let pointRadius = pointDiameter / 2;
-                let isDay2 = getIsDay2(timezone);
+                let isDay2 = getIsDay2(pickedDate, timezone);
 
                 return (
                   <g transform={`translate(${70}, ${paddingY / 2})`}>
@@ -593,7 +593,7 @@ const Main = () => {
                 let additionalDist = crest(cityAngleRads) * 50;
 
                 let isNight = geoContains(currentNightPath, [cityLon, cityLat]);
-                let isDay2 = getIsDay2(timezone);
+                let isDay2 = getIsDay2(pickedDate, timezone);
 
                 let color = isDay2 ? weekdayColors.day2 : weekdayColors.day1;
 
