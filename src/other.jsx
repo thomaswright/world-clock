@@ -16,11 +16,10 @@ import * as cityTimeZones from "city-timezones";
 let antipode = ([lon, lat]) => [lon + 180, -lat];
 
 // sun code from https://observablehq.com/@d3/solar-terminator
-let getSun = () => {
-  const now = new Date();
-  const day = new Date(+now).setUTCHours(0, 0, 0, 0);
-  const t = solar.century(now);
-  const longitude = ((day - now) / 864e5) * 360 - 180;
+let getSun = (time) => {
+  const day = new Date(+time).setUTCHours(0, 0, 0, 0);
+  const t = solar.century(time);
+  const longitude = ((day - time) / 864e5) * 360 - 180;
   return [longitude - solar.equationOfTime(t) / 4, solar.declination(t)];
 };
 
@@ -44,7 +43,11 @@ const getHeight = () => {
 
 const height = getHeight();
 
-let getNightPath = () => geoCircle().radius(90).center(antipode(getSun()));
+let getNightPath = (time) => {
+  return geoCircle()
+    .radius(90)
+    .center(antipode(getSun(time)));
+};
 
 let initialCities = [
   {
@@ -348,20 +351,29 @@ const SvgArc = ({
   );
 };
 
+let dayOfMilliseconds = 1000 * 60 * 60 * 24;
+
 const Main = () => {
   let [cities, setCities] = useState(initialCities);
-
-  let [currentNightPath, setCurrentNightPath] = useState(getNightPath());
+  let [inputDate, setInputDate] = useState(null);
+  let [nowDate, setNowDate] = useState(new Date());
+  let pickedDate = Boolean(inputDate) ? inputDate : nowDate;
 
   useEffect(() => {
+    let updateStep = 5000;
+
     let id = setInterval(() => {
-      setCurrentNightPath(getNightPath());
-    }, 5000);
+      setNowDate(new Date());
+      setInputDate((v) =>
+        Boolean(v) ? new Date(v.getTime() + updateStep) : v
+      );
+    }, updateStep);
     return () => clearInterval(id);
   }, []);
 
-  let dateRotation = getDateRotation(new Date());
-  let dayRotation = getDayRotation(new Date());
+  let currentNightPath = getNightPath(pickedDate)();
+  let dateRotation = getDateRotation(pickedDate);
+  let dayRotation = getDayRotation(pickedDate);
   let totalRotation = ((dateRotation + dayRotation) % 360) - 180;
 
   //cityTimeZones.findFromCityStateProvince(location)
@@ -408,8 +420,8 @@ const Main = () => {
     </CustomProjection>
   );
 
-  let dateline = () => {
-    let [sunLon, _] = getSun();
+  let dateline = (time) => {
+    let [sunLon, _] = getSun(time);
     let dayEndAngle = -(totalRotation + 90);
     let dayStartAngle = -(totalRotation + sunLon) - 90;
     let strokeWidth = 3;
@@ -465,6 +477,27 @@ const Main = () => {
 
   return (
     <div className=" w-fit p-6">
+      <input
+        className=" w-96"
+        type="range"
+        min={nowDate.getTime() - dayOfMilliseconds * 1}
+        max={nowDate.getTime() + dayOfMilliseconds * 1}
+        value={inputDate ? inputDate.getTime() : nowDate.getTime()}
+        step={1000 * 60 * 10}
+        onChange={(e) => {
+          let newDate = new Date(parseInt(e.target.value));
+          console.log(e, newDate, nowDate);
+          setInputDate(newDate);
+        }}
+      />
+      <button
+        className="text-orange-500 border border-orange-500 rounded-lg mx-5 p-2"
+        onClick={(_) => {
+          setInputDate(null);
+        }}
+      >
+        Back to Now
+      </button>
       <div className="relative">
         <div
           style={{
@@ -489,7 +522,7 @@ const Main = () => {
 
         <div className="absolute top-0 left-0 font-mono">
           <svg width={width + paddingX} height={height + paddingY}>
-            <g>{dateline()}</g>
+            <g>{dateline(pickedDate)}</g>
             <g>
               {cities.map(({ lat: cityLat, lng: cityLon, city, timezone }) => {
                 let [x, y] = getProjection(totalRotation)()([cityLon, cityLat]);
