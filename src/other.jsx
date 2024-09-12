@@ -25,21 +25,22 @@ let getSun = () => {
 };
 
 let sun = getSun();
-let projection = () => {
-  return geoAzimuthalEqualArea().rotate([0, -90, 0]);
+let getProjection = (rotation) => () => {
+  return geoAzimuthalEqualArea().rotate([0, rotation, 0]);
 };
-let projectionPath = geoPath(projection());
+
+// let projectionPath = geoPath(projection());
 
 const width = 500;
 
 const getHeight = () => {
   const [[x0, y0], [x1, y1]] = geoPath(
-    projection().fitWidth(width, { type: "Sphere" })
+    getProjection(-90)().fitWidth(width, { type: "Sphere" })
   ).bounds({ type: "Sphere" });
   const dy = Math.ceil(y1 - y0),
     l = Math.min(Math.ceil(x1 - x0), dy);
-  projection()
-    .scale((projection().scale() * (l - 1)) / l)
+  getProjection(-90)()
+    .scale((getProjection(-90)().scale() * (l - 1)) / l)
     .precision(0.2);
   return dy;
 };
@@ -191,6 +192,19 @@ const dayColors = {
   city: "#000", //"#001420",
 };
 
+function getDayOfYear(date) {
+  const start = new Date(date.getFullYear(), 0, 1);
+  const diff = date - start;
+  const dayOfYear = Math.ceil(diff / (1000 * 60 * 60 * 24));
+  return dayOfYear;
+}
+
+function getDateRotation(time) {
+  let summerSolstice = 183 + 21;
+  let dayOffset = getDayOfYear(time) - summerSolstice;
+  return (dayOffset / 365) * 360;
+}
+
 const Timezone = ({ flipLabel, city, timezone, color }) => {
   const [now, setNow] = useState("");
 
@@ -253,7 +267,7 @@ const Main = () => {
   let mapSvg = (colors) => (
     <CustomProjection
       data={world.features}
-      projection={projection}
+      projection={getProjection(-90)}
       translate={[centerX, centerY]}
     >
       {(projection) => {
@@ -307,7 +321,7 @@ const Main = () => {
             <defs>
               <clipPath id="nightClip">
                 <path
-                  d={projectionPath(currentNightPath)}
+                  d={geoPath(getProjection(-90)())(currentNightPath)}
                   transform={`rotate(0, ${centerX}, ${centerY}) translate(-230, 0) `}
                 />
               </clipPath>
@@ -322,7 +336,7 @@ const Main = () => {
           <svg width={width + paddingX} height={height + paddingY}>
             <g>
               {cities.map(({ lat: cityLat, lng: cityLon, city, timezone }) => {
-                let [x, y] = projection()([cityLon, cityLat]);
+                let [x, y] = getProjection(-90)()([cityLon, cityLat]);
                 let isNight = geoContains(currentNightPath, [cityLon, cityLat]);
                 let pointDiameter = 5;
                 let pointRadius = pointDiameter / 2;
