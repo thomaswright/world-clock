@@ -175,8 +175,8 @@ const dayColors = {
 };
 
 const weekdayColors = {
-  day1: "#3372df",
-  day2: "#1c7e00",
+  day1: "#00ffd3", // "#ffa900", // "#3372df",
+  day2: "#ffd300", // "#f40", //"#1c7e00",
 };
 
 function getDayOfYear(date) {
@@ -200,6 +200,39 @@ function getDayRotation(time) {
   const totalSecondsInDay = 86400;
   const percentageOfDayPassed = secondsPassed / totalSecondsInDay;
   return percentageOfDayPassed * 360;
+}
+
+let day2Timezone = "Pacific/Auckland";
+let day1Timezone = "America/Adak";
+
+function getIsDay2(timezone, referenceDate = new Date()) {
+  const a = referenceDate.toLocaleDateString("en-US", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const b = referenceDate.toLocaleDateString("en-US", {
+    timeZone: day2Timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  return a === b;
+}
+
+function getDay2String(referenceDate = new Date()) {
+  return referenceDate.toLocaleDateString("en-US", {
+    timeZone: day2Timezone,
+    weekday: "long",
+  });
+}
+
+function getDay1String(referenceDate = new Date()) {
+  return referenceDate.toLocaleDateString("en-US", {
+    timeZone: day1Timezone,
+    weekday: "long",
+  });
 }
 
 const Timezone = ({ flipLabel, city, timezone, color }) => {
@@ -250,6 +283,16 @@ const SvgArc = ({
   const x2 = cx + r * Math.cos(endAngleRad);
   const y2 = cy + r * Math.sin(endAngleRad);
 
+  let tr = r + 8;
+
+  // Calculate the start point of the arc
+  const tx1 = cx + tr * Math.cos(startAngleRad);
+  const ty1 = cy + tr * Math.sin(startAngleRad);
+
+  // Calculate the end point of the arc
+  const tx2 = cx + tr * Math.cos(endAngleRad);
+  const ty2 = cy + tr * Math.sin(endAngleRad);
+
   const calcStartOffset = (percentage, extraPx, pathLength) => {
     return percentage * pathLength + extraPx;
   };
@@ -263,14 +306,23 @@ const SvgArc = ({
   return (
     <g>
       <path
-        ref={pathRef}
-        id={id}
         d={`M ${x1} ${y1} A ${r} ${r} 0 ${clockwise ? 0 : 1} ${
           clockwise ? 1 : 0
         } ${x2} ${y2}`}
         stroke={stroke}
         strokeWidth={strokeWidth}
+        strokeDasharray={clockwise ? "1,10" : "1,5"}
         fill={fill}
+      />
+      <path
+        ref={pathRef}
+        id={id}
+        d={`M ${tx1} ${ty1} A ${tr} ${tr} 0 ${clockwise ? 0 : 1} ${
+          clockwise ? 1 : 0
+        } ${tx2} ${ty2}`}
+        stroke={"none"}
+        strokeWidth={strokeWidth}
+        fill={"none"}
       />
       <text fill={stroke} fontSize="16">
         <textPath
@@ -369,7 +421,7 @@ const Main = () => {
       >
         <SvgArc
           id={"clockwise"}
-          text={"wednesday"}
+          text={getDay1String()}
           cx={0}
           cy={0}
           r={centerX + 5}
@@ -381,7 +433,7 @@ const Main = () => {
         />
         <SvgArc
           id={"counter-clockwise"}
-          text={"thursday"}
+          text={getDay2String()}
           cx={0}
           cy={0}
           r={centerX + 5}
@@ -442,8 +494,9 @@ const Main = () => {
               {cities.map(({ lat: cityLat, lng: cityLon, city, timezone }) => {
                 let [x, y] = getProjection(totalRotation)()([cityLon, cityLat]);
                 let isNight = geoContains(currentNightPath, [cityLon, cityLat]);
-                let pointDiameter = 5;
+                let pointDiameter = 6;
                 let pointRadius = pointDiameter / 2;
+                let isDay2 = getIsDay2(timezone);
 
                 return (
                   <g transform={`translate(${70}, ${paddingY / 2})`}>
@@ -451,14 +504,16 @@ const Main = () => {
                       cx={x}
                       cy={y}
                       r={pointRadius}
-                      fill={isNight ? nightColors.city : dayColors.city}
+                      stroke={"black"}
+                      strokeWidth={1}
+                      fill={isDay2 ? weekdayColors.day2 : weekdayColors.day1}
                     />
                   </g>
                 );
               })}
               {cities.map(({ lat: cityLat, lng: cityLon, city, timezone }) => {
                 let cityAngle = -(totalRotation + cityLon) + 90;
-                let x = centerX + 20;
+                let x = centerX + 30;
                 let y = 0;
                 let flipLabel = cityAngle > 90 && cityAngle < 270;
                 let cityAngleRads = ((2 * cityAngle) / 180) * Math.PI;
@@ -466,7 +521,10 @@ const Main = () => {
                 let additionalDist = crest(cityAngleRads) * 50;
 
                 let isNight = geoContains(currentNightPath, [cityLon, cityLat]);
-                let color = isNight ? nightColors.land : dayColors.land;
+                let isDay2 = getIsDay2(timezone);
+
+                let color = isDay2 ? weekdayColors.day2 : weekdayColors.day1;
+
                 return (
                   <g
                     transform={`translate(${centerX + paddingX / 2}, ${
