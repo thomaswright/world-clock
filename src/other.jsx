@@ -217,6 +217,38 @@ function crest(x) {
   return (1 - Math.sqrt((1 + Math.cos(x)) / 2)) ** 3;
 }
 
+const SvgArc = ({
+  cx,
+  cy,
+  r,
+  startAngle,
+  endAngle,
+  largeArcFlag,
+  sweepFlag,
+  stroke = "none",
+  fill = "red",
+}) => {
+  // Convert angles from degrees to radians
+  const startAngleRad = (startAngle * Math.PI) / 180;
+  const endAngleRad = (endAngle * Math.PI) / 180;
+
+  // Calculate the start point of the arc
+  const x1 = cx + r * Math.cos(startAngleRad);
+  const y1 = cy + r * Math.sin(startAngleRad);
+
+  // Calculate the end point of the arc
+  const x2 = cx + r * Math.cos(endAngleRad);
+  const y2 = cy + r * Math.sin(endAngleRad);
+
+  return (
+    <path
+      d={`M ${x1} ${y1} A ${r} ${r} 0 ${largeArcFlag} ${sweepFlag} ${x2} ${y2}`}
+      stroke={stroke}
+      fill={fill}
+    />
+  );
+};
+
 const Main = () => {
   let [cities, setCities] = useState(initialCities);
 
@@ -277,6 +309,36 @@ const Main = () => {
     </CustomProjection>
   );
 
+  let dateline = () => {
+    let [sunLon, _] = getSun();
+    let dayEndAngle = -(totalRotation + 90);
+    let dayStartAngle = -(totalRotation + sunLon) - 90;
+    return (
+      <g
+        transform={`translate(${centerX + paddingX / 2}, ${
+          centerY + paddingY / 2
+        })`}
+      >
+        <rect
+          x={centerX}
+          y={0}
+          transform={`rotate(${dayStartAngle}, 0,0)`}
+          width={40}
+          height={"4"}
+          fill={nightColors.land}
+        />
+        <rect
+          x={centerX}
+          y={0}
+          transform={`rotate(${dayEndAngle}, 0,0)`}
+          width={40}
+          height={"4"}
+          fill={nightColors.land}
+        />
+      </g>
+    );
+  };
+
   return (
     <div className=" w-fit p-6">
       <div className="relative">
@@ -303,6 +365,7 @@ const Main = () => {
 
         <div className="absolute top-0 left-0 font-mono">
           <svg width={width + paddingX} height={height + paddingY}>
+            <g>{dateline()}</g>
             <g>
               {cities.map(({ lat: cityLat, lng: cityLon, city, timezone }) => {
                 let [x, y] = getProjection(totalRotation)()([cityLon, cityLat]);
