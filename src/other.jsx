@@ -24,12 +24,9 @@ let getSun = () => {
   return [longitude - solar.equationOfTime(t) / 4, solar.declination(t)];
 };
 
-let sun = getSun();
 let getProjection = (rotation) => () => {
-  return geoAzimuthalEqualArea().rotate([0, rotation, 0]);
+  return geoAzimuthalEqualArea().rotate([rotation, -90, 0]);
 };
-
-// let projectionPath = geoPath(projection());
 
 const width = 500;
 
@@ -47,22 +44,7 @@ const getHeight = () => {
 
 const height = getHeight();
 
-let getSunPath = () => geoCircle().radius(90).center(getSun());
-
 let getNightPath = () => geoCircle().radius(90).center(antipode(getSun()));
-
-function rotatePoint(x, y, angle) {
-  // Convert the angle from degrees to radians (if necessary)
-  const radians = (angle * Math.PI) / 180;
-
-  const cosTheta = Math.cos(radians); // angle in radians
-  const sinTheta = Math.sin(radians);
-
-  const xNew = x * cosTheta - y * sinTheta;
-  const yNew = x * sinTheta + y * cosTheta;
-
-  return [xNew, yNew];
-}
 
 let initialCities = [
   {
@@ -200,9 +182,19 @@ function getDayOfYear(date) {
 }
 
 function getDateRotation(time) {
-  let summerSolstice = 183 + 21;
+  let summerSolstice = 173;
   let dayOffset = getDayOfYear(time) - summerSolstice;
   return (dayOffset / 365) * 360;
+}
+
+function getDayRotation(time) {
+  const secondsPassed =
+    time.getUTCHours() * 3600 +
+    time.getUTCMinutes() * 60 +
+    time.getUTCSeconds();
+  const totalSecondsInDay = 86400;
+  const percentageOfDayPassed = secondsPassed / totalSecondsInDay;
+  return percentageOfDayPassed * 360;
 }
 
 const Timezone = ({ flipLabel, city, timezone, color }) => {
@@ -237,46 +229,32 @@ const Main = () => {
     return () => clearInterval(id);
   }, []);
 
+  let dateRotation = getDateRotation(new Date());
+  let dayRotation = getDayRotation(new Date());
+  let totalRotation = ((dateRotation + dayRotation) % 360) - 180;
+
   //cityTimeZones.findFromCityStateProvince(location)
 
   const centerX = width / 2;
   const centerY = height / 2;
 
-  let [angle, setAngle] = useState(0);
-
-  // useEffect(() => {
-  //   let id = setInterval(() => {
-  //     setAngle((a) => {
-  //       let newAngle = a + 0.1;
-  //       if (newAngle == 360) {
-  //         return 0;
-  //       } else {
-  //         return newAngle;
-  //       }
-  //     });
-  //   }, 10);
-  //   return () => clearInterval(id);
-  // }, []);
-
   let paddingX = 600;
   let paddingY = 300;
-
-  let offsetX = 50;
-  let offsetY = 100;
 
   let mapSvg = (colors) => (
     <CustomProjection
       data={world.features}
-      projection={getProjection(-90)}
+      projection={getProjection(totalRotation)}
       translate={[centerX, centerY]}
     >
       {(projection) => {
         return (
           <g>
-            <Graticule
-              outline={(o) => projection.path(o) || ""}
+            <circle
+              cx={centerX}
+              cy={centerY}
+              r={centerX - 1}
               fill={colors.sea}
-              stroke={colors.graticule}
             />
 
             <Graticule
@@ -293,15 +271,6 @@ const Main = () => {
                 strokeWidth={0.5}
               />
             ))}
-
-            <Graticule
-              outline={(o) => projection.path(o) || ""}
-              fill={"red"}
-              fillOpacity={0.0}
-              strokeOpacity={0.0}
-              id={"outline"}
-              onClick={(e) => {}}
-            />
           </g>
         );
       }}
@@ -321,7 +290,7 @@ const Main = () => {
             <defs>
               <clipPath id="nightClip">
                 <path
-                  d={geoPath(getProjection(-90)())(currentNightPath)}
+                  d={geoPath(getProjection(totalRotation)())(currentNightPath)}
                   transform={`rotate(0, ${centerX}, ${centerY}) translate(-230, 0) `}
                 />
               </clipPath>
@@ -336,23 +305,17 @@ const Main = () => {
           <svg width={width + paddingX} height={height + paddingY}>
             <g>
               {cities.map(({ lat: cityLat, lng: cityLon, city, timezone }) => {
-                let [x, y] = getProjection(-90)()([cityLon, cityLat]);
+                let [x, y] = getProjection(totalRotation)()([cityLon, cityLat]);
                 let isNight = geoContains(currentNightPath, [cityLon, cityLat]);
                 let pointDiameter = 5;
                 let pointRadius = pointDiameter / 2;
 
                 return (
-                  <g
-                    transform={`translate(${70 - pointRadius}, ${
-                      paddingY / 2 - pointRadius
-                    })`}
-                  >
-                    <rect
-                      x={x}
-                      y={y}
-                      rx={pointRadius}
-                      width={pointDiameter}
-                      height={pointDiameter}
+                  <g transform={`translate(${70}, ${paddingY / 2})`}>
+                    <circle
+                      cx={x}
+                      cy={y}
+                      r={pointRadius}
                       fill={isNight ? nightColors.city : dayColors.city}
                     />
                   </g>
