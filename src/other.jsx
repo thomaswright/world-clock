@@ -218,7 +218,7 @@ function crest(x) {
 }
 
 const Main = () => {
-  let [cities, setCities] = useState(degreeTest);
+  let [cities, setCities] = useState(initialCities);
 
   let [currentNightPath, setCurrentNightPath] = useState(getNightPath());
 
@@ -322,7 +322,7 @@ const Main = () => {
                 );
               })}
               {cities.map(({ lat: cityLat, lng: cityLon, city, timezone }) => {
-                let cityAngle = -cityLon + 90;
+                let cityAngle = -(totalRotation + cityLon) + 90;
                 let x = centerX + 20;
                 let y = 0;
                 let flipLabel = cityAngle > 90 && cityAngle < 270;
