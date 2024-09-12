@@ -150,9 +150,8 @@ let degreeTest = Array.from({ length: 36 }, (v, i) => {
   };
 });
 
-function getTimeStringInTimezone(timezone) {
-  const now = new Date();
-  return now.toLocaleString("en-US", {
+function getTimeStringInTimezone(time, timezone) {
+  return time.toLocaleString("en-US", {
     timeZone: timezone,
     hour: "numeric",
     minute: "numeric",
@@ -178,7 +177,7 @@ const dayColors = {
 };
 
 const weekdayColors = {
-  day1: "#00ffd3", // "#ffa900", // "#3372df",
+  day1: "#00abff", // "#ffa900", // "#3372df",
   day2: "#ffd300", // "#f40", //"#1c7e00",
 };
 
@@ -239,15 +238,16 @@ function getDay1String(referenceDate = new Date()) {
   });
 }
 
-const Timezone = ({ flipLabel, city, timezone, color }) => {
+const Timezone = ({ time, flipLabel, city, timezone, color }) => {
   const [now, setNow] = useState("");
 
   useEffect(() => {
     let id = setInterval(() => {
-      setNow(city + " " + getTimeStringInTimezone(timezone));
+      setNow(city + " " + getTimeStringInTimezone(time, timezone));
     }, 100);
+
     return () => clearInterval(id);
-  }, []);
+  }, [time]);
   return (
     <text textAnchor={flipLabel ? "end" : "start"} fill={color}>
       {now}
@@ -313,7 +313,7 @@ const SvgArc = ({
     if (pathRef.current) {
       setPathLength(pathRef.current.getTotalLength());
     }
-  }, []);
+  }, [time]);
 
   return (
     <g>
@@ -321,7 +321,7 @@ const SvgArc = ({
         d={`M ${x1} ${y1} A ${r} ${r} 0 ${getLengthFlags()} ${x2} ${y2}`}
         stroke={stroke}
         strokeWidth={strokeWidth}
-        strokeDasharray={clockwise ? "1,10" : "1,5"}
+        strokeDasharray={clockwise ? "2,5" : "2,5"}
         fill={fill}
       />
       <path
@@ -332,6 +332,17 @@ const SvgArc = ({
         strokeWidth={strokeWidth}
         fill={"none"}
       />
+      <text fill={stroke} fontSize="16">
+        <textPath
+          href={`#${id}`}
+          startOffset="50%"
+          textAnchor="start"
+          side={clockwise ? "left" : "right"}
+        >
+          {text}
+        </textPath>
+      </text>
+      {/*       
       <text fill={stroke} fontSize="16">
         <textPath
           href={`#${id}`}
@@ -351,7 +362,7 @@ const SvgArc = ({
         >
           {text}
         </textPath>
-      </text>
+      </text> */}
     </g>
   );
 };
@@ -468,22 +479,38 @@ const Main = () => {
           strokeWidth={strokeWidth}
           time={pickedDate}
         />
-        {/* <rect
+        <rect
           x={centerX}
           y={0}
-          transform={`rotate(${dayStartAngle}, 0,0)`}
-          width={40}
-          height={"4"}
-          fill={nightColors.land}
+          transform={`rotate(${dayStartAngle + 1}, 0,0)`}
+          width={12}
+          height={"8"}
+          fill={weekdayColors.day1}
         />
         <rect
           x={centerX}
           y={0}
-          transform={`rotate(${dayEndAngle}, 0,0)`}
-          width={40}
-          height={"4"}
-          fill={nightColors.land}
-        /> */}
+          transform={`rotate(${dayStartAngle - 1}, 0,0)`}
+          width={12}
+          height={"8"}
+          fill={weekdayColors.day2}
+        />
+        <rect
+          x={centerX}
+          y={0}
+          transform={`rotate(${dayEndAngle + 1}, 0,0)`}
+          width={12}
+          height={"8"}
+          fill={weekdayColors.day2}
+        />
+        <rect
+          x={centerX}
+          y={0}
+          transform={`rotate(${dayEndAngle - 1}, 0,0)`}
+          width={12}
+          height={"8"}
+          fill={weekdayColors.day1}
+        />
       </g>
     );
   };
@@ -609,6 +636,7 @@ const Main = () => {
                           }
                         >
                           <Timezone
+                            time={pickedDate}
                             flipLabel={flipLabel}
                             city={city}
                             timezone={timezone}
