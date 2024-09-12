@@ -221,6 +221,7 @@ function getIsDay2(timezone, referenceDate = new Date()) {
     month: "2-digit",
     day: "2-digit",
   });
+
   return a === b;
 }
 
@@ -270,7 +271,15 @@ const SvgArc = ({
   stroke = "red",
   fill = "transparent",
   strokeWidth = 1,
+  time,
 }) => {
+  let hours = time.getUTCHours();
+  let arcSwitch = hours >= 12 && hours < 24;
+
+  let getLengthFlags = () => {
+    return arcSwitch ? (clockwise ? "1 1" : "0 0") : clockwise ? "0 1" : "1 0";
+  };
+
   const [pathLength, setPathLength] = useState(0);
   const pathRef = useRef(null);
 
@@ -309,9 +318,7 @@ const SvgArc = ({
   return (
     <g>
       <path
-        d={`M ${x1} ${y1} A ${r} ${r} 0 ${clockwise ? 0 : 1} ${
-          clockwise ? 1 : 0
-        } ${x2} ${y2}`}
+        d={`M ${x1} ${y1} A ${r} ${r} 0 ${getLengthFlags()} ${x2} ${y2}`}
         stroke={stroke}
         strokeWidth={strokeWidth}
         strokeDasharray={clockwise ? "1,10" : "1,5"}
@@ -320,9 +327,7 @@ const SvgArc = ({
       <path
         ref={pathRef}
         id={id}
-        d={`M ${tx1} ${ty1} A ${tr} ${tr} 0 ${clockwise ? 0 : 1} ${
-          clockwise ? 1 : 0
-        } ${tx2} ${ty2}`}
+        d={`M ${tx1} ${ty1} A ${tr} ${tr} 0 ${getLengthFlags()} ${tx2} ${ty2}`}
         stroke={"none"}
         strokeWidth={strokeWidth}
         fill={"none"}
@@ -354,22 +359,26 @@ const SvgArc = ({
 let dayOfMilliseconds = 1000 * 60 * 60 * 24;
 
 const Main = () => {
+  let now = new Date();
+
   let [cities, setCities] = useState(initialCities);
-  let [inputDate, setInputDate] = useState(null);
+  let [inputDate, setInputDate] = useState(
+    new Date(now.getTime() + 1000 * 60 * 60 * 10)
+  );
   let [nowDate, setNowDate] = useState(new Date());
   let pickedDate = Boolean(inputDate) ? inputDate : nowDate;
 
-  useEffect(() => {
-    let updateStep = 5000;
+  // useEffect(() => {
+  //   let updateStep = 5000;
 
-    let id = setInterval(() => {
-      setNowDate(new Date());
-      setInputDate((v) =>
-        Boolean(v) ? new Date(v.getTime() + updateStep) : v
-      );
-    }, updateStep);
-    return () => clearInterval(id);
-  }, []);
+  //   let id = setInterval(() => {
+  //     setNowDate(new Date());
+  //     setInputDate((v) =>
+  //       Boolean(v) ? new Date(v.getTime() + updateStep) : v
+  //     );
+  //   }, updateStep);
+  //   return () => clearInterval(id);
+  // }, []);
 
   let currentNightPath = getNightPath(pickedDate)();
   let dateRotation = getDateRotation(pickedDate);
@@ -421,9 +430,11 @@ const Main = () => {
   );
 
   let dateline = (time) => {
-    let [sunLon, _] = getSun(time);
+    // let [sunLon, _] = getSun(time);
+    // let utcLon = dayRotation
+
     let dayEndAngle = -(totalRotation + 90);
-    let dayStartAngle = -(totalRotation + sunLon) - 90;
+    let dayStartAngle = -totalRotation + dayRotation + 90;
     let strokeWidth = 3;
     return (
       <g
@@ -442,6 +453,7 @@ const Main = () => {
           clockwise={true}
           stroke={weekdayColors.day1}
           strokeWidth={strokeWidth}
+          time={pickedDate}
         />
         <SvgArc
           id={"counter-clockwise"}
@@ -454,6 +466,7 @@ const Main = () => {
           clockwise={false}
           stroke={weekdayColors.day2}
           strokeWidth={strokeWidth}
+          time={pickedDate}
         />
         {/* <rect
           x={centerX}
@@ -486,7 +499,6 @@ const Main = () => {
         step={1000 * 60 * 10}
         onChange={(e) => {
           let newDate = new Date(parseInt(e.target.value));
-          console.log(e, newDate, nowDate);
           setInputDate(newDate);
         }}
       />
