@@ -46,9 +46,9 @@ const getHeight = () => {
 
 const height = getHeight();
 
-let sunPath = geoCircle().radius(90).center(sun);
+let getSunPath = () => geoCircle().radius(90).center(getSun());
 
-let nightPath = geoCircle().radius(90).center(antipode(sun));
+let getNightPath = () => geoCircle().radius(90).center(antipode(getSun()));
 
 function rotatePoint(x, y, angle) {
   // Convert the angle from degrees to radians (if necessary)
@@ -155,6 +155,15 @@ let initialCities = [
   },
 ];
 
+let degreeTest = Array.from({ length: 36 }, (v, i) => {
+  return {
+    city: "San Francisco",
+    lat: 0.0,
+    lng: (i - 18) * 10,
+    timezone: "America/Los_Angeles",
+  };
+});
+
 function getTimeStringInTimezone(timezone) {
   const now = new Date();
   return now.toLocaleString("en-US", {
@@ -198,8 +207,21 @@ const Timezone = ({ flipLabel, city, timezone, color }) => {
   );
 };
 
+function crest(x) {
+  return (1 - Math.sqrt((1 + Math.cos(x)) / 2)) ** 3;
+}
+
 const Main = () => {
-  let [cities, setCities] = useState(initialCities);
+  let [cities, setCities] = useState(degreeTest);
+
+  let [currentNightPath, setCurrentNightPath] = useState(getNightPath());
+
+  useEffect(() => {
+    let id = setInterval(() => {
+      setCurrentNightPath(getNightPath());
+    }, 5000);
+    return () => clearInterval(id);
+  }, []);
 
   //cityTimeZones.findFromCityStateProvince(location)
 
@@ -223,7 +245,10 @@ const Main = () => {
   // }, []);
 
   let paddingX = 600;
-  let paddingY = 200;
+  let paddingY = 400;
+
+  let offsetX = 50;
+  let offsetY = 100;
 
   let mapSvg = (colors) => (
     <CustomProjection
@@ -282,7 +307,7 @@ const Main = () => {
             <defs>
               <clipPath id="nightClip">
                 <path
-                  d={projectionPath(nightPath())}
+                  d={projectionPath(currentNightPath)}
                   transform={`rotate(0, ${centerX}, ${centerY}) translate(-230, 0) `}
                 />
               </clipPath>
@@ -298,7 +323,7 @@ const Main = () => {
             <g>
               {cities.map(({ lat: cityLat, lng: cityLon, city, timezone }) => {
                 let [x, y] = projection()([cityLon, cityLat]);
-                let isNight = geoContains(nightPath(), [cityLon, cityLat]);
+                let isNight = geoContains(currentNightPath, [cityLon, cityLat]);
                 let pointDiameter = 5;
                 let pointRadius = pointDiameter / 2;
 
@@ -320,11 +345,15 @@ const Main = () => {
                 );
               })}
               {cities.map(({ lat: cityLat, lng: cityLon, city, timezone }) => {
-                let lon = -cityLon + 90;
+                let cityAngle = -cityLon + 90;
                 let x = centerX + 20;
                 let y = 0;
-                let flipLabel = lon > 90 && lon < 270;
-                let isNight = geoContains(nightPath(), [cityLon, cityLat]);
+                let flipLabel = cityAngle > 90 && cityAngle < 270;
+                let cityAngleRads = ((2 * cityAngle) / 180) * Math.PI;
+
+                let additionalDist = crest(cityAngleRads) * 50;
+
+                let isNight = geoContains(currentNightPath, [cityLon, cityLat]);
                 let color = isNight ? nightColors.land : dayColors.land;
                 return (
                   <g
@@ -335,25 +364,25 @@ const Main = () => {
                     <rect
                       x={x}
                       y={y}
-                      transform={`rotate(${lon}, 0,0)`}
-                      width={"40"}
+                      transform={`rotate(${cityAngle}, 0,0)`}
+                      width={40 + additionalDist}
                       height={"2"}
                       fill={color}
                     />
                     <g
-                      transform={`rotate(${lon}, 0, 0) translate(${
-                        x + 40
+                      transform={`rotate(${cityAngle}, 0, 0) translate(${
+                        x + 40 + additionalDist
                       }, ${y}) `}
                     >
                       <g
                         transform={`rotate(${
-                          flipLabel ? -lon + 180 : -lon
+                          flipLabel ? -cityAngle + 180 : -cityAngle
                         }, 0,0) translate(-1, 0)`}
                       >
                         <rect
                           x={1}
                           y={0}
-                          width={"20"}
+                          width={20}
                           height={"2"}
                           fill={color}
                         />
