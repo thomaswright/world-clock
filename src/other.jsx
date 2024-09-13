@@ -50,54 +50,54 @@ let getNightPath = (time) => {
 };
 
 let initialCities = [
-  {
-    city: "Seoul",
-    city_ascii: "Seoul",
-    lat: 37.5663491,
-    lng: 126.999731,
-    pop: 9796000,
-    country: "South Korea",
-    iso2: "KR",
-    iso3: "KOR",
-    province: "Seoul",
-    timezone: "Asia/Seoul",
-  },
-  {
-    city: "Beijing",
-    city_ascii: "Beijing",
-    lat: 39.92889223,
-    lng: 116.3882857,
-    pop: 9293300.5,
-    country: "China",
-    iso2: "CN",
-    iso3: "CHN",
-    province: "Beijing",
-    timezone: "Asia/Shanghai",
-  },
-  {
-    city: "Mumbai",
-    city_ascii: "Mumbai",
-    lat: 19.01699038,
-    lng: 72.8569893,
-    pop: 15834918,
-    country: "India",
-    iso2: "IN",
-    iso3: "IND",
-    province: "Maharashtra",
-    timezone: "Asia/Kolkata",
-  },
-  {
-    city: "London",
-    city_ascii: "London",
-    lat: 51.49999473,
-    lng: -0.116721844,
-    pop: 7994104.5,
-    country: "United Kingdom",
-    iso2: "GB",
-    iso3: "GBR",
-    province: "Westminster",
-    timezone: "Europe/London",
-  },
+  // {
+  //   city: "Seoul",
+  //   city_ascii: "Seoul",
+  //   lat: 37.5663491,
+  //   lng: 126.999731,
+  //   pop: 9796000,
+  //   country: "South Korea",
+  //   iso2: "KR",
+  //   iso3: "KOR",
+  //   province: "Seoul",
+  //   timezone: "Asia/Seoul",
+  // },
+  // {
+  //   city: "Beijing",
+  //   city_ascii: "Beijing",
+  //   lat: 39.92889223,
+  //   lng: 116.3882857,
+  //   pop: 9293300.5,
+  //   country: "China",
+  //   iso2: "CN",
+  //   iso3: "CHN",
+  //   province: "Beijing",
+  //   timezone: "Asia/Shanghai",
+  // },
+  // {
+  //   city: "Mumbai",
+  //   city_ascii: "Mumbai",
+  //   lat: 19.01699038,
+  //   lng: 72.8569893,
+  //   pop: 15834918,
+  //   country: "India",
+  //   iso2: "IN",
+  //   iso3: "IND",
+  //   province: "Maharashtra",
+  //   timezone: "Asia/Kolkata",
+  // },
+  // {
+  //   city: "London",
+  //   city_ascii: "London",
+  //   lat: 51.49999473,
+  //   lng: -0.116721844,
+  //   pop: 7994104.5,
+  //   country: "United Kingdom",
+  //   iso2: "GB",
+  //   iso3: "GBR",
+  //   province: "Westminster",
+  //   timezone: "Europe/London",
+  // },
   // {
   //   city: "Chicago",
   //   city_ascii: "Chicago",
@@ -126,19 +126,19 @@ let initialCities = [
     state_ansi: "NY",
     timezone: "America/New_York",
   },
-  {
-    city: "San Francisco",
-    city_ascii: "San Francisco",
-    lat: 37.74000775,
-    lng: -122.4599777,
-    pop: 2091036,
-    country: "United States of America",
-    iso2: "US",
-    iso3: "USA",
-    province: "California",
-    state_ansi: "CA",
-    timezone: "America/Los_Angeles",
-  },
+  // {
+  //   city: "San Francisco",
+  //   city_ascii: "San Francisco",
+  //   lat: 37.74000775,
+  //   lng: -122.4599777,
+  //   pop: 2091036,
+  //   country: "United States of America",
+  //   iso2: "US",
+  //   iso3: "USA",
+  //   province: "California",
+  //   state_ansi: "CA",
+  //   timezone: "America/Los_Angeles",
+  // },
 ];
 
 let degreeTest = Array.from({ length: 36 }, (v, i) => {
@@ -239,18 +239,25 @@ function getDay1String(referenceDate) {
 }
 
 const Timezone = ({ time, flipLabel, city, timezone, color }) => {
-  const [now, setNow] = useState("");
+  const [now, setNow] = useState(time.getTime());
 
   useEffect(() => {
     let id = setInterval(() => {
-      setNow(city + " " + getTimeStringInTimezone(time, timezone));
-    }, 100);
+      setNow((v) => v + 1000);
+    }, 1000);
 
     return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    setNow((_) => time.getTime());
   }, [time]);
+
+  let text = city + " " + getTimeStringInTimezone(new Date(now), timezone);
+
   return (
     <text textAnchor={flipLabel ? "end" : "start"} fill={color}>
-      {now}
+      {text}
     </text>
   );
 };
@@ -369,6 +376,27 @@ const SvgArc = ({
 
 let dayOfMilliseconds = 1000 * 60 * 60 * 24;
 
+function dayParity(time) {
+  let dayNum = Math.floor(time.getTime() / (1000 * 60 * 60 * 24));
+
+  return dayNum % 2 === 0;
+}
+
+function dayTimezoneParity(date, timezone) {
+  let dateString = new Date(date).toLocaleString("en-US", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  const [month, day, year] = dateString.split("/");
+  let localDate = new Date(Date.UTC(year, month - 1, day));
+  let daysSinceEpoch = Math.floor(localDate.getTime() / (1000 * 60 * 60 * 24));
+
+  return daysSinceEpoch % 2 === 0;
+}
+
 const Main = () => {
   let now = new Date();
 
@@ -439,12 +467,18 @@ const Main = () => {
   );
 
   let dateline = (time) => {
-    // let [sunLon, _] = getSun(time);
-    // let utcLon = dayRotation
-
     let dayEndAngle = -(totalRotation + 90);
     let dayStartAngle = -totalRotation + dayRotation + 90;
     let strokeWidth = 3;
+    let color1 =
+      dayParity(time) === time.getUTCHours() < 12
+        ? weekdayColors.day1
+        : weekdayColors.day2;
+    let color2 =
+      dayParity(time) === time.getUTCHours() < 12
+        ? weekdayColors.day2
+        : weekdayColors.day1;
+
     return (
       <g
         transform={`translate(${centerX + paddingX / 2}, ${
@@ -460,7 +494,7 @@ const Main = () => {
           startAngle={dayStartAngle}
           endAngle={dayEndAngle}
           clockwise={true}
-          stroke={weekdayColors.day1}
+          stroke={color1}
           strokeWidth={strokeWidth}
           time={pickedDate}
         />
@@ -473,7 +507,7 @@ const Main = () => {
           startAngle={dayStartAngle}
           endAngle={dayEndAngle}
           clockwise={false}
-          stroke={weekdayColors.day2}
+          stroke={color2}
           strokeWidth={strokeWidth}
           time={pickedDate}
         />
@@ -483,7 +517,7 @@ const Main = () => {
           transform={`rotate(${dayStartAngle + 1}, 0,0)`}
           width={12}
           height={"8"}
-          fill={weekdayColors.day1}
+          fill={color1}
         />
         <rect
           x={centerX}
@@ -491,7 +525,7 @@ const Main = () => {
           transform={`rotate(${dayStartAngle - 1}, 0,0)`}
           width={12}
           height={"8"}
-          fill={weekdayColors.day2}
+          fill={color2}
         />
         <rect
           x={centerX}
@@ -499,7 +533,7 @@ const Main = () => {
           transform={`rotate(${dayEndAngle + 1}, 0,0)`}
           width={12}
           height={"8"}
-          fill={weekdayColors.day2}
+          fill={color2}
         />
         <rect
           x={centerX}
@@ -507,7 +541,7 @@ const Main = () => {
           transform={`rotate(${dayEndAngle - 1}, 0,0)`}
           width={12}
           height={"8"}
-          fill={weekdayColors.day1}
+          fill={color1}
         />
       </g>
     );
@@ -566,7 +600,14 @@ const Main = () => {
                 let isNight = geoContains(currentNightPath, [cityLon, cityLat]);
                 let pointDiameter = 6;
                 let pointRadius = pointDiameter / 2;
-                let isDay2 = getIsDay2(pickedDate, timezone);
+
+                let color = dayTimezoneParity(pickedDate, timezone)
+                  ? isNight
+                    ? "#fff"
+                    : weekdayColors.day2
+                  : isNight
+                  ? "#000"
+                  : weekdayColors.day1;
 
                 return (
                   <g transform={`translate(${70}, ${paddingY / 2})`}>
@@ -576,15 +617,7 @@ const Main = () => {
                       r={pointRadius}
                       stroke={"black"}
                       strokeWidth={1}
-                      fill={
-                        isDay2
-                          ? isNight
-                            ? "#fff"
-                            : weekdayColors.day2
-                          : isNight
-                          ? weekdayColors.day1
-                          : "#000"
-                      }
+                      fill={color}
                     />
                   </g>
                 );
@@ -602,8 +635,9 @@ const Main = () => {
                 let additionalDist = crest(cityAngleRads) * 50;
 
                 let isNight = geoContains(currentNightPath, [cityLon, cityLat]);
-                let isDay2 = getIsDay2(pickedDate, timezone);
-                let color = isDay2 ? weekdayColors.day2 : weekdayColors.day1;
+                let color = dayTimezoneParity(pickedDate, timezone)
+                  ? weekdayColors.day2
+                  : weekdayColors.day1;
 
                 return (
                   <g
