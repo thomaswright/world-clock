@@ -376,10 +376,16 @@ const SvgArc = ({
 
 let dayOfMilliseconds = 1000 * 60 * 60 * 24;
 
-function dayParity(time) {
-  let dayNum = Math.floor(time.getTime() / (1000 * 60 * 60 * 24));
+function dayNum(time) {
+  return Math.floor(time.getTime() / (1000 * 60 * 60 * 24));
+}
 
-  return dayNum % 2 === 0;
+function dayParity(time) {
+  return dayNum(time) % 2 === 0;
+}
+
+function getSubDayMilli(time) {
+  return time.getTime() - dayNum(time) * (1000 * 60 * 60 * 24);
 }
 
 function dayTimezoneParity(date, timezone) {
@@ -402,6 +408,8 @@ const Main = () => {
 
   let [cities, setCities] = useState(initialCities);
   let [inputDate, setInputDate] = useState(new Date(now.getTime()));
+  let [inputSection, setInputSection] = useState(0);
+  // let [adjustTime, setAdjustTime] = useState(true);
   let [nowDate, setNowDate] = useState(new Date());
   let pickedDate = Boolean(inputDate) ? inputDate : nowDate;
 
@@ -546,7 +554,12 @@ const Main = () => {
       </g>
     );
   };
-
+  let inputTimeChunk = dayOfMilliseconds * 3;
+  let timeInputCenter =
+    dayNum(pickedDate) * dayOfMilliseconds +
+    getSubDayMilli(nowDate) -
+    inputSection * dayOfMilliseconds;
+  console.log({ timeInputCenter });
   return (
     <div className=" w-fit p-6">
       <div className="text-white">{pickedDate.toISOString()}</div>
@@ -554,12 +567,17 @@ const Main = () => {
       <input
         className=" w-96"
         type="range"
-        min={nowDate.getTime() - dayOfMilliseconds * 1}
-        max={nowDate.getTime() + dayOfMilliseconds * 1}
-        value={inputDate ? inputDate.getTime() : nowDate.getTime()}
+        min={timeInputCenter - inputTimeChunk / 2}
+        max={timeInputCenter + inputTimeChunk / 2}
+        value={pickedDate.getTime()}
         step={1000 * 60 * 10}
         onChange={(e) => {
-          let newDate = new Date(parseInt(e.target.value));
+          let newValue = parseInt(e.target.value);
+          console.log(newValue, timeInputCenter);
+          setInputSection(
+            Math.floor(newValue - timeInputCenter / dayOfMilliseconds)
+          );
+          let newDate = new Date(newValue);
           setInputDate(newDate);
         }}
       />
@@ -567,12 +585,16 @@ const Main = () => {
       <input
         className=" w-96"
         type="range"
-        min={nowDate.getTime() - dayOfMilliseconds * 180}
-        max={nowDate.getTime() + dayOfMilliseconds * 180}
-        value={inputDate ? inputDate.getTime() : nowDate.getTime()}
-        step={1000 * 60 * 60 * 24}
+        min={dayNum(nowDate) - 180}
+        max={dayNum(nowDate) + 180}
+        value={Boolean(inputDate) ? dayNum(inputDate) : dayNum(nowDate)}
+        step={1}
         onChange={(e) => {
-          let newDate = new Date(parseInt(e.target.value));
+          let newDay = parseInt(e.target.value);
+          let newDayMilli = newDay * 1000 * 60 * 60 * 24;
+          let subDayMill = getSubDayMilli(pickedDate);
+          let newDate = new Date(newDayMilli + subDayMill);
+
           setInputDate(newDate);
         }}
       />
