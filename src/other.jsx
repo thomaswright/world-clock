@@ -108,6 +108,10 @@ let degreeTest = Array.from({ length: 36 }, (v, i) => {
   };
 });
 
+// Constants
+
+let DAY_MILLISECONDS = 1000 * 60 * 60 * 24;
+
 // # Options
 
 const nightColors = {
@@ -115,7 +119,7 @@ const nightColors = {
   graticule: "#442000",
   land: "#ff6100",
   border: "#442000",
-  city: "#fff", //"#fff0e7",
+  city: "#fff",
 };
 
 const dayColors = {
@@ -123,17 +127,16 @@ const dayColors = {
   graticule: "#c2deff",
   land: "#00b0ff",
   border: "#004e70",
-  city: "#000", //"#001420",
+  city: "#000",
 };
 
 const weekdayColors = {
-  day1: "#00b0ff", // "#ffa900", // "#3372df",
-  day2: "#ff6100", // "#f40", //"#1c7e00",
+  day1: "#00b0ff",
+  day2: "#ff6100",
 };
 
-// Constants
-
-let DAY_MILLISECONDS = DAY_MILLISECONDS;
+let timeValWidth = DAY_MILLISECONDS * 3;
+let dayValWidth = 360;
 
 // # Main
 
@@ -270,10 +273,6 @@ function dayParity(time) {
   return dayNum(time) % 2 === 0;
 }
 
-function getSubDayMilli(time) {
-  return time.getTime() - dayNum(time) * DAY_MILLISECONDS;
-}
-
 function dayTimezoneParity(date, timezone) {
   let dateString = new Date(date).toLocaleString("en-US", {
     timeZone: timezone,
@@ -398,16 +397,14 @@ const SvgArc = ({
 };
 
 const Main = () => {
-  let inputTimeChunk = DAY_MILLISECONDS * 3;
-
   let now = new Date();
 
   let [cities, setCities] = useState(initialCities);
   let [inputDate, setInputDate] = useState(new Date(now.getTime()));
-  let initialTimeVal = inputTimeChunk / 2;
-  let [timeVal, setTimeVal] = useState(inputTimeChunk / 2);
-  let initialDayVal = 180;
-  let [dayVal, setDayVal] = useState(180);
+  let initialTimeVal = timeValWidth / 2;
+  let [timeVal, setTimeVal] = useState(timeValWidth / 2);
+  let initialDayVal = dayValWidth / 2;
+  let [dayVal, setDayVal] = useState(initialDayVal);
 
   let [nowDate, setNowDate] = useState(new Date());
   let pickedDate = Boolean(inputDate) ? inputDate : nowDate;
@@ -556,13 +553,13 @@ const Main = () => {
 
   return (
     <div className=" w-fit p-6">
-      <div className="text-white">{pickedDate.toISOString()}</div>
+      {/* <div className="text-white">{pickedDate.toISOString()}</div> */}
       <div className="text-white">Adjust Time</div>
       <input
         className=" w-96"
         type="range"
         min={0}
-        max={inputTimeChunk}
+        max={timeValWidth}
         value={timeVal}
         step={1000 * 60 * 10}
         onChange={(e) => {
@@ -581,7 +578,7 @@ const Main = () => {
         className=" w-96"
         type="range"
         min={0}
-        max={366}
+        max={dayValWidth}
         value={dayVal}
         step={1}
         onChange={(e) => {
