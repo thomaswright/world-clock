@@ -585,7 +585,7 @@ const Main = () => {
         step={1000 * 60 * 10}
         onChange={(e) => {
           let newValue = parseInt(e.target.value);
-          let diff = timeVal - newValue;
+          let diff = newValue - timeVal;
           let base = Boolean(inputDate)
             ? inputDate.getTime()
             : nowDate.getTime();
@@ -604,7 +604,7 @@ const Main = () => {
         step={1}
         onChange={(e) => {
           let newValue = parseInt(e.target.value);
-          let diff = dayVal - newValue;
+          let diff = newValue - dayVal;
           let base = Boolean(inputDate)
             ? inputDate.getTime()
             : nowDate.getTime();
@@ -719,7 +719,7 @@ const Main = () => {
                         }, 0,0) translate(-1, 0)`}
                       >
                         <rect
-                          x={1}
+                          x={0}
                           y={0}
                           width={20}
                           height={"2"}
