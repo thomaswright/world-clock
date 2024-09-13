@@ -114,6 +114,27 @@ let DAY_MILLISECONDS = 1000 * 60 * 60 * 24;
 
 // # Options
 
+// const nightColors = {
+//   sea: "#00204d",
+//   graticule: "#384e98",
+//   land: "#27A65A",
+//   border: "#003301",
+//   city: "#fff",
+// };
+
+// const dayColors = {
+//   sea: "#b6e3ff",
+//   graticule: "#60a9ff",
+//   land: "#f1dcc2",
+//   border: "#806127",
+//   city: "#000",
+// };
+
+// const weekdayColors = {
+//   day1: "rgb(255 111 142)",
+//   day2: "rgb(255 222 91)",
+// };
+
 const nightColors = {
   sea: "#000",
   graticule: "#442000",
@@ -131,8 +152,8 @@ const dayColors = {
 };
 
 const weekdayColors = {
-  day1: "#00b0ff",
-  day2: "#ff6100",
+  day1: dayColors.land,
+  day2: nightColors.land,
 };
 
 let timeValWidth = DAY_MILLISECONDS * 3;
@@ -637,10 +658,10 @@ const Main = () => {
 
                 let color = dayTimezoneParity(pickedDate, timezone)
                   ? isNight
-                    ? "#fff"
+                    ? weekdayColors.day2 // "#fff"
                     : weekdayColors.day2
                   : isNight
-                  ? "#000"
+                  ? weekdayColors.day1 //"#000"
                   : weekdayColors.day1;
 
                 return (
