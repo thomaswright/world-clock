@@ -364,7 +364,7 @@ const SvgArc = ({
       <text fill={stroke} fontSize="16">
         <textPath
           href={`#${id}`}
-          startOffset="50%"
+          startOffset={"35%"}
           textAnchor="start"
           side={clockwise ? "left" : "right"}
         >
