@@ -204,38 +204,38 @@ function getDayRotation(time) {
   return percentageOfDayPassed * 360;
 }
 
-let day2Timezone = "Pacific/Auckland";
-let day1Timezone = "America/Adak";
+function dayString(dayNumber) {
+  const daysOfWeek = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
 
-function getIsDay2(referenceDate, timezone) {
-  const a = referenceDate.toLocaleDateString("en-US", {
-    timeZone: timezone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-  const b = referenceDate.toLocaleDateString("en-US", {
-    timeZone: day2Timezone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+  if (dayNumber < 0 || dayNumber > 6) {
+    throw new Error("Invalid day number. Must be between 0 and 6.");
+  }
 
-  return a === b;
+  return daysOfWeek[dayNumber];
 }
 
-function getDay2String(referenceDate) {
-  return referenceDate.toLocaleDateString("en-US", {
-    timeZone: day2Timezone,
-    weekday: "long",
-  });
+function getTomorrowDayString(time) {
+  let tomorrow = new Date(time.getTime() + 1000 * 60 * 60 * 24);
+
+  return dayString(tomorrow.getUTCDay());
 }
 
-function getDay1String(referenceDate) {
-  return referenceDate.toLocaleDateString("en-US", {
-    timeZone: day1Timezone,
-    weekday: "long",
-  });
+function getYesterdayDayString(time) {
+  let yesterday = new Date(time.getTime() - 1000 * 60 * 60 * 24);
+
+  return dayString(yesterday.getUTCDay());
+}
+
+function getTodayDayString(time) {
+  return dayString(time.getUTCDay());
 }
 
 const Timezone = ({ time, flipLabel, city, timezone, color }) => {
@@ -470,14 +470,14 @@ const Main = () => {
     let dayEndAngle = -(totalRotation + 90);
     let dayStartAngle = -totalRotation + dayRotation + 90;
     let strokeWidth = 3;
-    let color1 =
-      dayParity(time) === time.getUTCHours() < 12
-        ? weekdayColors.day1
-        : weekdayColors.day2;
-    let color2 =
-      dayParity(time) === time.getUTCHours() < 12
-        ? weekdayColors.day2
-        : weekdayColors.day1;
+    let beforeNoon = time.getUTCHours() < 12;
+    let swap = dayParity(time) === beforeNoon;
+    let color1 = swap ? weekdayColors.day1 : weekdayColors.day2;
+    let color2 = swap ? weekdayColors.day2 : weekdayColors.day1;
+    let today = getTodayDayString(time);
+    let tomorrow = getTomorrowDayString(time);
+    let yesterday = getYesterdayDayString(time);
+    let [text1, text2] = beforeNoon ? [yesterday, today] : [today, tomorrow];
 
     return (
       <g
@@ -487,7 +487,7 @@ const Main = () => {
       >
         <SvgArc
           id={"clockwise"}
-          text={getDay1String(time)}
+          text={text1}
           cx={0}
           cy={0}
           r={centerX + 5}
@@ -500,7 +500,7 @@ const Main = () => {
         />
         <SvgArc
           id={"counter-clockwise"}
-          text={getDay2String(time)}
+          text={text2}
           cx={0}
           cy={0}
           r={centerX + 5}
@@ -549,6 +549,7 @@ const Main = () => {
 
   return (
     <div className=" w-fit p-6">
+      <div className="text-white">{pickedDate.toISOString()}</div>
       <input
         className=" w-96"
         type="range"
