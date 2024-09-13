@@ -2,52 +2,10 @@ import { CustomProjection, Graticule } from "@visx/geo";
 import { useEffect, useState, useRef } from "react";
 import * as topojson from "topojson-client";
 import topology from "./world-topo.json";
-import {
-  geoAzimuthalEqualArea,
-  geoCircle,
-  geoPath,
-  geoContains,
-  geoConicConformal,
-} from "d3";
+import { geoAzimuthalEqualArea, geoCircle, geoPath, geoContains } from "d3";
 const world = topojson.feature(topology, topology.objects.units);
 import * as solar from "solar-calculator";
 import * as cityTimeZones from "city-timezones";
-
-let antipode = ([lon, lat]) => [lon + 180, -lat];
-
-// sun code from https://observablehq.com/@d3/solar-terminator
-let getSun = (time) => {
-  const day = new Date(+time).setUTCHours(0, 0, 0, 0);
-  const t = solar.century(time);
-  const longitude = ((day - time) / 864e5) * 360 - 180;
-  return [longitude - solar.equationOfTime(t) / 4, solar.declination(t)];
-};
-
-let getProjection = (rotation) => () => {
-  return geoAzimuthalEqualArea().rotate([rotation, -90, 0]);
-};
-
-const width = 500;
-
-const getHeight = () => {
-  const [[x0, y0], [x1, y1]] = geoPath(
-    getProjection(-90)().fitWidth(width, { type: "Sphere" })
-  ).bounds({ type: "Sphere" });
-  const dy = Math.ceil(y1 - y0),
-    l = Math.min(Math.ceil(x1 - x0), dy);
-  getProjection(-90)()
-    .scale((getProjection(-90)().scale() * (l - 1)) / l)
-    .precision(0.2);
-  return dy;
-};
-
-const height = getHeight();
-
-let getNightPath = (time) => {
-  return geoCircle()
-    .radius(90)
-    .center(antipode(getSun(time)));
-};
 
 let initialCities = [
   {
@@ -150,15 +108,7 @@ let degreeTest = Array.from({ length: 36 }, (v, i) => {
   };
 });
 
-function getTimeStringInTimezone(time, timezone) {
-  return time.toLocaleString("en-US", {
-    timeZone: timezone,
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
-    hour12: false,
-  });
-}
+// # Options
 
 const nightColors = {
   sea: "#000",
@@ -181,10 +131,62 @@ const weekdayColors = {
   day2: "#ff6100", // "#f40", //"#1c7e00",
 };
 
+// Constants
+
+let DAY_MILLISECONDS = DAY_MILLISECONDS;
+
+// # Main
+
+let antipode = ([lon, lat]) => [lon + 180, -lat];
+
+// sun code from https://observablehq.com/@d3/solar-terminator
+let getSun = (time) => {
+  const day = new Date(+time).setUTCHours(0, 0, 0, 0);
+  const t = solar.century(time);
+  const longitude = ((day - time) / 864e5) * 360 - 180;
+  return [longitude - solar.equationOfTime(t) / 4, solar.declination(t)];
+};
+
+let getProjection = (rotation) => () => {
+  return geoAzimuthalEqualArea().rotate([rotation, -90, 0]);
+};
+
+const width = 500;
+
+const getHeight = () => {
+  const [[x0, y0], [x1, y1]] = geoPath(
+    getProjection(-90)().fitWidth(width, { type: "Sphere" })
+  ).bounds({ type: "Sphere" });
+  const dy = Math.ceil(y1 - y0),
+    l = Math.min(Math.ceil(x1 - x0), dy);
+  getProjection(-90)()
+    .scale((getProjection(-90)().scale() * (l - 1)) / l)
+    .precision(0.2);
+  return dy;
+};
+
+const height = getHeight();
+
+let getNightPath = (time) => {
+  return geoCircle()
+    .radius(90)
+    .center(antipode(getSun(time)));
+};
+
+function getTimeStringInTimezone(time, timezone) {
+  return time.toLocaleString("en-US", {
+    timeZone: timezone,
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: false,
+  });
+}
+
 function getDayOfYear(date) {
   const start = new Date(date.getFullYear(), 0, 1);
   const diff = date - start;
-  const dayOfYear = Math.ceil(diff / (1000 * 60 * 60 * 24));
+  const dayOfYear = Math.ceil(diff / DAY_MILLISECONDS);
   return dayOfYear;
 }
 
@@ -204,38 +206,32 @@ function getDayRotation(time) {
   return percentageOfDayPassed * 360;
 }
 
-function dayString(dayNumber) {
-  const daysOfWeek = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
+function dayString(time) {
+  let result = time.toLocaleDateString("en-US", {
+    timeZone: "UTC",
+    weekday: "long",
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
 
-  if (dayNumber < 0 || dayNumber > 6) {
-    throw new Error("Invalid day number. Must be between 0 and 6.");
-  }
-
-  return daysOfWeek[dayNumber];
+  return result;
 }
 
 function getTomorrowDayString(time) {
-  let tomorrow = new Date(time.getTime() + 1000 * 60 * 60 * 24);
+  let tomorrow = new Date(time.getTime() + DAY_MILLISECONDS);
 
-  return dayString(tomorrow.getUTCDay());
+  return dayString(tomorrow);
 }
 
 function getYesterdayDayString(time) {
-  let yesterday = new Date(time.getTime() - 1000 * 60 * 60 * 24);
+  let yesterday = new Date(time.getTime() - DAY_MILLISECONDS);
 
-  return dayString(yesterday.getUTCDay());
+  return dayString(yesterday);
 }
 
 function getTodayDayString(time) {
-  return dayString(time.getUTCDay());
+  return dayString(time);
 }
 
 const Timezone = ({ time, flipLabel, city, timezone, color }) => {
@@ -264,6 +260,33 @@ const Timezone = ({ time, flipLabel, city, timezone, color }) => {
 
 function crest(x) {
   return (1 - Math.sqrt((1 + Math.cos(x)) / 2)) ** 3;
+}
+
+function dayNum(time) {
+  return Math.floor(time.getTime() / DAY_MILLISECONDS);
+}
+
+function dayParity(time) {
+  return dayNum(time) % 2 === 0;
+}
+
+function getSubDayMilli(time) {
+  return time.getTime() - dayNum(time) * DAY_MILLISECONDS;
+}
+
+function dayTimezoneParity(date, timezone) {
+  let dateString = new Date(date).toLocaleString("en-US", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  const [month, day, year] = dateString.split("/");
+  let localDate = new Date(Date.UTC(year, month - 1, day));
+  let daysSinceEpoch = Math.floor(localDate.getTime() / DAY_MILLISECONDS);
+
+  return daysSinceEpoch % 2 === 0;
 }
 
 const SvgArc = ({
@@ -374,37 +397,8 @@ const SvgArc = ({
   );
 };
 
-let dayOfMilliseconds = 1000 * 60 * 60 * 24;
-
-function dayNum(time) {
-  return Math.floor(time.getTime() / (1000 * 60 * 60 * 24));
-}
-
-function dayParity(time) {
-  return dayNum(time) % 2 === 0;
-}
-
-function getSubDayMilli(time) {
-  return time.getTime() - dayNum(time) * (1000 * 60 * 60 * 24);
-}
-
-function dayTimezoneParity(date, timezone) {
-  let dateString = new Date(date).toLocaleString("en-US", {
-    timeZone: timezone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-
-  const [month, day, year] = dateString.split("/");
-  let localDate = new Date(Date.UTC(year, month - 1, day));
-  let daysSinceEpoch = Math.floor(localDate.getTime() / (1000 * 60 * 60 * 24));
-
-  return daysSinceEpoch % 2 === 0;
-}
-
 const Main = () => {
-  let inputTimeChunk = dayOfMilliseconds * 3;
+  let inputTimeChunk = DAY_MILLISECONDS * 3;
 
   let now = new Date();
 
@@ -597,7 +591,7 @@ const Main = () => {
             ? inputDate.getTime()
             : nowDate.getTime();
 
-          let newDate = new Date(base + diff * 1000 * 60 * 60 * 24);
+          let newDate = new Date(base + diff * DAY_MILLISECONDS);
           setDayVal(newValue);
           setInputDate(newDate);
         }}
