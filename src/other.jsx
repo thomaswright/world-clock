@@ -171,7 +171,7 @@ let getSun = (time) => {
   return [longitude - solar.equationOfTime(t) / 4, solar.declination(t)];
 };
 
-const width = 1000;
+const width = 500;
 
 let getProjection = (rotation) => () => {
   return geoAzimuthalEqualArea()
@@ -194,8 +194,6 @@ const getHeight = () => {
 };
 
 const height = getHeight();
-
-console.log(height);
 
 let getNightPath = (time) => {
   return geoCircle()
@@ -521,7 +519,9 @@ const Main = () => {
     let tomorrow = getTomorrowDayString(time);
     let yesterday = getYesterdayDayString(time);
     let [text1, text2] = beforeNoon ? [yesterday, today] : [today, tomorrow];
-
+    let bookendHeight = 12;
+    let bookendWidth = 8;
+    let bookendOffset = 5;
     return (
       <g
         transform={`translate(${centerX + paddingX / 2}, ${
@@ -556,34 +556,34 @@ const Main = () => {
         />
         <rect
           x={centerX}
-          y={0}
-          transform={`rotate(${dayStartAngle + 1}, 0,0)`}
-          width={12}
-          height={"8"}
+          y={bookendOffset}
+          transform={`rotate(${dayStartAngle}, 0,0)`}
+          width={bookendHeight}
+          height={bookendWidth}
           fill={color1}
         />
         <rect
           x={centerX}
-          y={0}
-          transform={`rotate(${dayStartAngle - 1}, 0,0)`}
-          width={12}
-          height={"8"}
+          y={-bookendOffset}
+          transform={`rotate(${dayStartAngle}, 0,0)`}
+          width={bookendHeight}
+          height={bookendWidth}
           fill={color2}
         />
         <rect
           x={centerX}
-          y={0}
-          transform={`rotate(${dayEndAngle + 1}, 0,0)`}
-          width={12}
-          height={"8"}
+          y={bookendOffset}
+          transform={`rotate(${dayEndAngle}, 0,0)`}
+          width={bookendHeight}
+          height={bookendWidth}
           fill={color2}
         />
         <rect
           x={centerX}
-          y={0}
-          transform={`rotate(${dayEndAngle - 1}, 0,0)`}
-          width={12}
-          height={"8"}
+          y={-bookendOffset}
+          transform={`rotate(${dayEndAngle}, 0,0)`}
+          width={bookendHeight}
+          height={bookendWidth}
           fill={color1}
         />
       </g>
