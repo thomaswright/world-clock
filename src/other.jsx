@@ -50,54 +50,54 @@ let getNightPath = (time) => {
 };
 
 let initialCities = [
-  // {
-  //   city: "Seoul",
-  //   city_ascii: "Seoul",
-  //   lat: 37.5663491,
-  //   lng: 126.999731,
-  //   pop: 9796000,
-  //   country: "South Korea",
-  //   iso2: "KR",
-  //   iso3: "KOR",
-  //   province: "Seoul",
-  //   timezone: "Asia/Seoul",
-  // },
-  // {
-  //   city: "Beijing",
-  //   city_ascii: "Beijing",
-  //   lat: 39.92889223,
-  //   lng: 116.3882857,
-  //   pop: 9293300.5,
-  //   country: "China",
-  //   iso2: "CN",
-  //   iso3: "CHN",
-  //   province: "Beijing",
-  //   timezone: "Asia/Shanghai",
-  // },
-  // {
-  //   city: "Mumbai",
-  //   city_ascii: "Mumbai",
-  //   lat: 19.01699038,
-  //   lng: 72.8569893,
-  //   pop: 15834918,
-  //   country: "India",
-  //   iso2: "IN",
-  //   iso3: "IND",
-  //   province: "Maharashtra",
-  //   timezone: "Asia/Kolkata",
-  // },
-  // {
-  //   city: "London",
-  //   city_ascii: "London",
-  //   lat: 51.49999473,
-  //   lng: -0.116721844,
-  //   pop: 7994104.5,
-  //   country: "United Kingdom",
-  //   iso2: "GB",
-  //   iso3: "GBR",
-  //   province: "Westminster",
-  //   timezone: "Europe/London",
-  // },
+  {
+    city: "Seoul",
+    city_ascii: "Seoul",
+    lat: 37.5663491,
+    lng: 126.999731,
+    pop: 9796000,
+    country: "South Korea",
+    iso2: "KR",
+    iso3: "KOR",
+    province: "Seoul",
+    timezone: "Asia/Seoul",
+  },
+  {
+    city: "Beijing",
+    city_ascii: "Beijing",
+    lat: 39.92889223,
+    lng: 116.3882857,
+    pop: 9293300.5,
+    country: "China",
+    iso2: "CN",
+    iso3: "CHN",
+    province: "Beijing",
+    timezone: "Asia/Shanghai",
+  },
+  {
+    city: "Mumbai",
+    city_ascii: "Mumbai",
+    lat: 19.01699038,
+    lng: 72.8569893,
+    pop: 15834918,
+    country: "India",
+    iso2: "IN",
+    iso3: "IND",
+    province: "Maharashtra",
+    timezone: "Asia/Kolkata",
+  },
+  {
+    city: "London",
+    city_ascii: "London",
+    lat: 51.49999473,
+    lng: -0.116721844,
+    pop: 7994104.5,
+    country: "United Kingdom",
+    iso2: "GB",
+    iso3: "GBR",
+    province: "Westminster",
+    timezone: "Europe/London",
+  },
   // {
   //   city: "Chicago",
   //   city_ascii: "Chicago",
@@ -126,19 +126,19 @@ let initialCities = [
     state_ansi: "NY",
     timezone: "America/New_York",
   },
-  // {
-  //   city: "San Francisco",
-  //   city_ascii: "San Francisco",
-  //   lat: 37.74000775,
-  //   lng: -122.4599777,
-  //   pop: 2091036,
-  //   country: "United States of America",
-  //   iso2: "US",
-  //   iso3: "USA",
-  //   province: "California",
-  //   state_ansi: "CA",
-  //   timezone: "America/Los_Angeles",
-  // },
+  {
+    city: "San Francisco",
+    city_ascii: "San Francisco",
+    lat: 37.74000775,
+    lng: -122.4599777,
+    pop: 2091036,
+    country: "United States of America",
+    iso2: "US",
+    iso3: "USA",
+    province: "California",
+    state_ansi: "CA",
+    timezone: "America/Los_Angeles",
+  },
 ];
 
 let degreeTest = Array.from({ length: 36 }, (v, i) => {
@@ -550,6 +550,7 @@ const Main = () => {
   return (
     <div className=" w-fit p-6">
       <div className="text-white">{pickedDate.toISOString()}</div>
+      <div className="text-white">Adjust Time</div>
       <input
         className=" w-96"
         type="range"
@@ -557,6 +558,19 @@ const Main = () => {
         max={nowDate.getTime() + dayOfMilliseconds * 1}
         value={inputDate ? inputDate.getTime() : nowDate.getTime()}
         step={1000 * 60 * 10}
+        onChange={(e) => {
+          let newDate = new Date(parseInt(e.target.value));
+          setInputDate(newDate);
+        }}
+      />
+      <div className="text-white">Adjust Day</div>
+      <input
+        className=" w-96"
+        type="range"
+        min={nowDate.getTime() - dayOfMilliseconds * 180}
+        max={nowDate.getTime() + dayOfMilliseconds * 180}
+        value={inputDate ? inputDate.getTime() : nowDate.getTime()}
+        step={1000 * 60 * 60 * 24}
         onChange={(e) => {
           let newDate = new Date(parseInt(e.target.value));
           setInputDate(newDate);
