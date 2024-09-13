@@ -639,10 +639,14 @@ const Main = () => {
                   transform={`rotate(0, ${centerX}, ${centerY}) translate(-230, 0) `}
                 />
               </clipPath>
+              <clipPath id="antarcticaClip">
+                <circle r={centerX - 0} cx={centerX} cy={centerY} />
+              </clipPath>
             </defs>
-
-            {mapSvg(dayColors)}
-            <g clipPath="url(#nightClip)">{mapSvg(nightColors)}</g>
+            <g clipPath="url(#antarcticaClip)">
+              {mapSvg(dayColors)}
+              <g clipPath="url(#nightClip)">{mapSvg(nightColors)}</g>
+            </g>
           </svg>
         </div>
 
