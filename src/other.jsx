@@ -410,7 +410,9 @@ const Main = () => {
 
   let [cities, setCities] = useState(initialCities);
   let [inputDate, setInputDate] = useState(new Date(now.getTime()));
+  let initialTimeVal = inputTimeChunk / 2;
   let [timeVal, setTimeVal] = useState(inputTimeChunk / 2);
+  let initialDayVal = 180;
   let [dayVal, setDayVal] = useState(180);
 
   let [nowDate, setNowDate] = useState(new Date());
@@ -604,6 +606,8 @@ const Main = () => {
         className="text-orange-500 border border-orange-500 rounded-lg mx-5 p-2"
         onClick={(_) => {
           setInputDate(null);
+          setDayVal(initialDayVal);
+          setTimeVal(initialTimeVal);
         }}
       >
         Back to Now
