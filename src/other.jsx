@@ -171,11 +171,15 @@ let getSun = (time) => {
   return [longitude - solar.equationOfTime(t) / 4, solar.declination(t)];
 };
 
-let getProjection = (rotation) => () => {
-  return geoAzimuthalEqualArea().rotate([rotation, -90, 0]);
-};
+const width = 1000;
 
-const width = 500;
+let getProjection = (rotation) => () => {
+  return geoAzimuthalEqualArea()
+    .scale(width / 4)
+
+    .rotate([rotation, -90, 0])
+    .translate([width / 2, width / 2]);
+};
 
 const getHeight = () => {
   const [[x0, y0], [x1, y1]] = geoPath(
@@ -190,6 +194,8 @@ const getHeight = () => {
 };
 
 const height = getHeight();
+
+console.log(height);
 
 let getNightPath = (time) => {
   return geoCircle()
@@ -433,7 +439,7 @@ function rotatePoint(x, y, angle) {
 const Main = () => {
   let now = new Date();
 
-  let [cities, setCities] = useState(degreeTest);
+  let [cities, setCities] = useState(initialCities);
   let [inputDate, setInputDate] = useState(new Date(now.getTime()));
   let initialTimeVal = timeValWidth / 2;
   let [timeVal, setTimeVal] = useState(timeValWidth / 2);
@@ -465,14 +471,13 @@ const Main = () => {
   const centerX = width / 2;
   const centerY = height / 2;
 
-  let paddingX = 600;
+  let paddingX = 800;
   let paddingY = 300;
 
   let mapSvg = (colors) => (
     <CustomProjection
       data={world.features}
       projection={getProjection(totalRotation)}
-      translate={[centerX, centerY]}
     >
       {(projection) => {
         return (
@@ -649,7 +654,6 @@ const Main = () => {
               <clipPath id="nightClip">
                 <path
                   d={geoPath(getProjection(totalRotation)())(currentNightPath)}
-                  transform={`rotate(0, ${centerX}, ${centerY}) translate(-230, 0) `}
                 />
               </clipPath>
               <clipPath id="antarcticaClip">
@@ -682,7 +686,7 @@ const Main = () => {
                   : weekdayColors.day1;
 
                 return (
-                  <g transform={`translate(${70}, ${paddingY / 2})`}>
+                  <g transform={`translate(${paddingX / 2}, ${paddingY / 2})`}>
                     <circle
                       cx={x}
                       cy={y}
@@ -731,7 +735,7 @@ const Main = () => {
                       style={{
                         fill: "none",
                         stroke: color,
-                        strokeWidth: "1px",
+                        strokeWidth: "2px",
                       }}
                     />
                     <g
