@@ -417,10 +417,23 @@ const SvgArc = ({
   );
 };
 
+function rotatePoint(x, y, angle) {
+  // Convert the angle from degrees to radians (if necessary)
+  const radians = (angle * Math.PI) / 180;
+
+  const cosTheta = Math.cos(radians); // angle in radians
+  const sinTheta = Math.sin(radians);
+
+  const xNew = x * cosTheta - y * sinTheta;
+  const yNew = x * sinTheta + y * cosTheta;
+
+  return [xNew, yNew];
+}
+
 const Main = () => {
   let now = new Date();
 
-  let [cities, setCities] = useState(initialCities);
+  let [cities, setCities] = useState(degreeTest);
   let [inputDate, setInputDate] = useState(new Date(now.getTime()));
   let initialTimeVal = timeValWidth / 2;
   let [timeVal, setTimeVal] = useState(timeValWidth / 2);
@@ -698,53 +711,49 @@ const Main = () => {
                   ? weekdayColors.day2
                   : weekdayColors.day1;
 
+                let [lineX, lineY] = rotatePoint(
+                  0,
+                  20,
+                  (flipLabel ? -cityAngle + 180 : -cityAngle) - 90
+                );
+
                 return (
                   <g
                     transform={`translate(${centerX + paddingX / 2}, ${
                       centerY + paddingY / 2
                     })`}
                   >
-                    <rect
-                      x={x}
-                      y={y}
+                    <path
+                      d={`M ${x}, 0 l ${
+                        40 + additionalDist
+                      }, 0 l ${lineX} ${lineY}`}
                       transform={`rotate(${cityAngle}, 0,0)`}
-                      width={40 + additionalDist}
-                      height={"2"}
-                      fill={color}
+                      style={{
+                        fill: "none",
+                        stroke: color,
+                        strokeWidth: "1px",
+                      }}
                     />
                     <g
-                      transform={`rotate(${cityAngle}, 0, 0) translate(${
-                        x + 40 + additionalDist
-                      }, ${y}) `}
+                      transform={
+                        `rotate(${cityAngle}, 0, 0) translate(${
+                          x + 40 + additionalDist
+                        }, ${y}) 
+                      rotate(${
+                        flipLabel ? -cityAngle + 180 : -cityAngle
+                      }, 0,0) ` +
+                        "translate(30, 0) " +
+                        (flipLabel ? "rotate(180, 0, 0) " : " ") +
+                        (flipLabel ? "translate(0, 3)" : "translate(0, 3)")
+                      }
                     >
-                      <g
-                        transform={`rotate(${
-                          flipLabel ? -cityAngle + 180 : -cityAngle
-                        }, 0,0) translate(-1, 0)`}
-                      >
-                        <rect
-                          x={0}
-                          y={0}
-                          width={20}
-                          height={"2"}
-                          fill={color}
-                        />
-                        <g
-                          transform={
-                            "translate(30, 0) " +
-                            (flipLabel ? "rotate(180, 0, 0) " : " ") +
-                            (flipLabel ? "translate(0, 1)" : "translate(0, 3)")
-                          }
-                        >
-                          <Timezone
-                            time={pickedDate}
-                            flipLabel={flipLabel}
-                            city={city}
-                            timezone={timezone}
-                            color={color}
-                          />
-                        </g>
-                      </g>
+                      <Timezone
+                        time={pickedDate}
+                        flipLabel={flipLabel}
+                        city={city}
+                        timezone={timezone}
+                        color={color}
+                      />
                     </g>
                   </g>
                 );
