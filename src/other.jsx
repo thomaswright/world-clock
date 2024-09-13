@@ -572,7 +572,10 @@ const Main = () => {
         onChange={(e) => {
           let newValue = parseInt(e.target.value);
           let diff = timeVal - newValue;
-          let newDate = new Date(inputDate.getTime() + diff);
+          let base = Boolean(inputDate)
+            ? inputDate.getTime()
+            : nowDate.getTime();
+          let newDate = new Date(base + diff);
           setTimeVal(newValue);
           setInputDate(newDate);
         }}
@@ -588,9 +591,11 @@ const Main = () => {
         onChange={(e) => {
           let newValue = parseInt(e.target.value);
           let diff = dayVal - newValue;
-          let newDate = new Date(
-            inputDate.getTime() + diff * 1000 * 60 * 60 * 24
-          );
+          let base = Boolean(inputDate)
+            ? inputDate.getTime()
+            : nowDate.getTime();
+
+          let newDate = new Date(base + diff * 1000 * 60 * 60 * 24);
           setDayVal(newValue);
           setInputDate(newDate);
         }}
