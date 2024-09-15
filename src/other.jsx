@@ -116,24 +116,24 @@ let DAY_MILLISECONDS = 1000 * 60 * 60 * 24;
 // # Options
 
 // const nightColors = {
-//   sea: "#00204d",
-//   graticule: "#384e98",
-//   land: "#27A65A",
+//   sea: "#00132D",
+//   graticule: "#2441A1",
+//   land: "#3CC071",
 //   border: "#003301",
 //   city: "#fff",
 // };
 
 // const dayColors = {
 //   sea: "#b6e3ff",
-//   graticule: "#60a9ff",
+//   graticule: "#96C7FF",
 //   land: "#f1dcc2",
 //   border: "#806127",
 //   city: "#000",
 // };
 
 // const weekdayColors = {
-//   day1: "rgb(255 111 142)",
-//   day2: "rgb(255 222 91)",
+//   day1: "#F3FF8C",
+//   day2: "#FF9DA5",
 // };
 
 const nightColors = {
@@ -157,6 +157,27 @@ const weekdayColors = {
   day2: nightColors.land,
 };
 
+// const nightColors = {
+//   sea: "#000",
+//   graticule: "#442000",
+//   land: " #FFD83B ",
+//   border: "#442000",
+//   city: "#fff",
+// };
+
+// const dayColors = {
+//   sea: "#fff",
+//   graticule: "#c2deff",
+//   land: "#00BDDA",
+//   border: "#004e70",
+//   city: "#000",
+// };
+
+// const weekdayColors = {
+//   day1: "#FF62B3",
+//   day2: "#03E8B3",
+// };
+
 let timeValWidth = DAY_MILLISECONDS * 3;
 let dayValWidth = 360;
 
@@ -172,8 +193,8 @@ let getSun = (time) => {
   return [longitude - solar.equationOfTime(t) / 4, solar.declination(t)];
 };
 
-const width = 500;
-let paddingX = 800;
+const width = 300;
+let paddingX = 500;
 let paddingY = 300;
 
 let getProjection = (rotation) => () => {
@@ -590,7 +611,6 @@ const Main = () => {
     );
   };
 
-  console.log(inputDate);
   return (
     <div className=" p-6">
       <div className="w-full flex flex-col items-center ">
@@ -598,7 +618,7 @@ const Main = () => {
           <input
             className="my-2 py-1 rounded"
             style={{
-              backgroundColor: nightColors.sea,
+              backgroundColor: "black",
               color: nightColors.land,
             }}
             type="datetime-local"
@@ -613,7 +633,11 @@ const Main = () => {
             }}
           />
           <button
-            className="text-orange-500 border border-orange-500 rounded-full py-2 px-4"
+            className=" border rounded-full py-2 px-4"
+            style={{
+              color: nightColors.land,
+              borderColor: nightColors.land,
+            }}
             onClick={(_) => {
               setInputDate(null);
               setDayVal(initialDayVal);
