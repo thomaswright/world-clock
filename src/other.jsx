@@ -173,6 +173,8 @@ let getSun = (time) => {
 };
 
 const width = 500;
+let paddingX = 800;
+let paddingY = 300;
 
 let getProjection = (rotation) => () => {
   return geoAzimuthalEqualArea()
@@ -470,9 +472,6 @@ const Main = () => {
   const centerX = width / 2;
   const centerY = height / 2;
 
-  let paddingX = 800;
-  let paddingY = 300;
-
   let mapSvg = (colors) => (
     <CustomProjection
       data={world.features}
@@ -593,93 +592,93 @@ const Main = () => {
 
   console.log(inputDate);
   return (
-    <div className=" w-fit p-6">
-      <input
-        className="my-2 py-1 rounded"
-        style={{
-          backgroundColor: nightColors.sea,
-          color: nightColors.land,
-        }}
-        type="datetime-local"
-        value={new Date(
-          pickedDate.getTime() - pickedDate.getTimezoneOffset() * 60 * 1000
-        )
-          .toISOString()
-          .slice(0, 16)}
-        onChange={(e) => {
-          console.log(new Date(e.target.value));
-          setInputDate(new Date(e.target.value));
-        }}
-      />
-      <button
-        className="text-orange-500 border border-orange-500 rounded-full mx-5 py-2 px-4"
-        onClick={(_) => {
-          setInputDate(null);
-          setDayVal(initialDayVal);
-          setTimeVal(initialTimeVal);
-        }}
-      >
-        Back to Now
-      </button>
-      <div className="text-white py-2">Slide Time</div>
-      <Slider
-        classNames={{ Root: "w-96", Track: "" }}
-        styles={{
-          Root: {},
-          Track: {
-            backgroundColor: nightColors.land,
-          },
-        }}
-        min={0}
-        max={timeValWidth}
-        value={timeVal}
-        step={1000 * 60 * 10}
-        onChange={(value) => {
-          let newValue = parseInt(value);
-          let diff = newValue - timeVal;
-          let base = Boolean(inputDate)
-            ? inputDate.getTime()
-            : nowDate.getTime();
-          let newDate = new Date(base + diff);
-          setTimeVal(newValue);
-          setInputDate(newDate);
-        }}
-      />
-      <div className="text-white py-2">Slide Day</div>
+    <div className=" p-6">
+      <div className="w-full flex flex-col items-center ">
+        <div className=" flex flex-row justify-between w-96">
+          <input
+            className="my-2 py-1 rounded"
+            style={{
+              backgroundColor: nightColors.sea,
+              color: nightColors.land,
+            }}
+            type="datetime-local"
+            value={new Date(
+              pickedDate.getTime() - pickedDate.getTimezoneOffset() * 60 * 1000
+            )
+              .toISOString()
+              .slice(0, 16)}
+            onChange={(e) => {
+              console.log(new Date(e.target.value));
+              setInputDate(new Date(e.target.value));
+            }}
+          />
+          <button
+            className="text-orange-500 border border-orange-500 rounded-full py-2 px-4"
+            onClick={(_) => {
+              setInputDate(null);
+              setDayVal(initialDayVal);
+              setTimeVal(initialTimeVal);
+            }}
+          >
+            Back to Now
+          </button>
+        </div>
 
-      <Slider
-        classNames={{ Root: "w-96", Track: "" }}
-        styles={{
-          Root: {},
-          Track: {
-            backgroundColor: nightColors.land,
-          },
-        }}
-        min={0}
-        max={dayValWidth}
-        value={dayVal}
-        step={1}
-        onChange={(value) => {
-          let newValue = parseInt(value);
-          let diff = newValue - dayVal;
-          let base = Boolean(inputDate)
-            ? inputDate.getTime()
-            : nowDate.getTime();
-
-          let newDate = new Date(base + diff * DAY_MILLISECONDS);
-          setDayVal(newValue);
-          setInputDate(newDate);
-        }}
-      />
-
-      <div className="relative">
-        <div
-          style={{
-            paddingLeft: paddingX / 2 + "px",
-            paddingTop: paddingY / 2 + "px",
+        <div className="text-white py-2">Slide Time</div>
+        <Slider
+          classNames={{ Root: "w-96", Track: "" }}
+          styles={{
+            Root: {},
+            Track: {
+              backgroundColor: nightColors.land,
+            },
           }}
-        >
-          <svg width={width} height={height}>
+          min={0}
+          max={timeValWidth}
+          value={timeVal}
+          step={1000 * 60 * 10}
+          onChange={(value) => {
+            let newValue = parseInt(value);
+            let diff = newValue - timeVal;
+            let base = Boolean(inputDate)
+              ? inputDate.getTime()
+              : nowDate.getTime();
+            let newDate = new Date(base + diff);
+            setTimeVal(newValue);
+            setInputDate(newDate);
+          }}
+        />
+        <div className="text-white py-2">Slide Day</div>
+
+        <Slider
+          classNames={{ Root: "w-96", Track: "" }}
+          styles={{
+            Root: {},
+            Track: {
+              backgroundColor: nightColors.land,
+            },
+          }}
+          min={0}
+          max={dayValWidth}
+          value={dayVal}
+          step={1}
+          onChange={(value) => {
+            let newValue = parseInt(value);
+            let diff = newValue - dayVal;
+            let base = Boolean(inputDate)
+              ? inputDate.getTime()
+              : nowDate.getTime();
+
+            let newDate = new Date(base + diff * DAY_MILLISECONDS);
+            setDayVal(newValue);
+            setInputDate(newDate);
+          }}
+        />
+      </div>
+
+      <div className="w-full flex flex-row justify-center ">
+        <div className="overflow-x-scroll">
+          <svg width={width + paddingX} height={height + paddingY}>
             <defs>
               <clipPath id="nightClip">
                 <path
@@ -690,15 +689,13 @@ const Main = () => {
                 <circle r={centerX - 0} cx={centerX} cy={centerY} />
               </clipPath>
             </defs>
-            <g clipPath="url(#antarcticaClip)">
+            <g
+              transform={`translate(${paddingX / 2}, ${paddingY / 2})`}
+              clipPath="url(#antarcticaClip)"
+            >
               {mapSvg(dayColors)}
               <g clipPath="url(#nightClip)">{mapSvg(nightColors)}</g>
             </g>
-          </svg>
-        </div>
-
-        <div className="absolute top-0 left-0 font-mono">
-          <svg width={width + paddingX} height={height + paddingY}>
             <g>{dateline(pickedDate)}</g>
             <g>
               {cities.map(({ lat: cityLat, lng: cityLon, city, timezone }) => {
