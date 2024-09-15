@@ -6,6 +6,7 @@ import { geoAzimuthalEqualArea, geoCircle, geoPath, geoContains } from "d3";
 const world = topojson.feature(topology, topology.objects.units);
 import * as solar from "solar-calculator";
 import * as cityTimeZones from "city-timezones";
+import Slider from "./Slider";
 
 let initialCities = [
   {
@@ -590,19 +591,51 @@ const Main = () => {
     );
   };
 
+  console.log(inputDate);
   return (
     <div className=" w-fit p-6">
-      {/* <div className="text-white">{pickedDate.toISOString()}</div> */}
-      <div className="text-white">Adjust Time</div>
       <input
-        className=" w-96"
-        type="range"
+        className="my-2 py-1 rounded"
+        style={{
+          backgroundColor: nightColors.sea,
+          color: nightColors.land,
+        }}
+        type="datetime-local"
+        value={new Date(
+          pickedDate.getTime() - pickedDate.getTimezoneOffset() * 60 * 1000
+        )
+          .toISOString()
+          .slice(0, 16)}
+        onChange={(e) => {
+          console.log(new Date(e.target.value));
+          setInputDate(new Date(e.target.value));
+        }}
+      />
+      <button
+        className="text-orange-500 border border-orange-500 rounded-full mx-5 py-2 px-4"
+        onClick={(_) => {
+          setInputDate(null);
+          setDayVal(initialDayVal);
+          setTimeVal(initialTimeVal);
+        }}
+      >
+        Back to Now
+      </button>
+      <div className="text-white py-2">Slide Time</div>
+      <Slider
+        classNames={{ Root: "w-96", Track: "" }}
+        styles={{
+          Root: {},
+          Track: {
+            backgroundColor: nightColors.land,
+          },
+        }}
         min={0}
         max={timeValWidth}
         value={timeVal}
         step={1000 * 60 * 10}
-        onChange={(e) => {
-          let newValue = parseInt(e.target.value);
+        onChange={(value) => {
+          let newValue = parseInt(value);
           let diff = newValue - timeVal;
           let base = Boolean(inputDate)
             ? inputDate.getTime()
@@ -612,16 +645,22 @@ const Main = () => {
           setInputDate(newDate);
         }}
       />
-      <div className="text-white">Adjust Day</div>
-      <input
-        className=" w-96"
-        type="range"
+      <div className="text-white py-2">Slide Day</div>
+
+      <Slider
+        classNames={{ Root: "w-96", Track: "" }}
+        styles={{
+          Root: {},
+          Track: {
+            backgroundColor: nightColors.land,
+          },
+        }}
         min={0}
         max={dayValWidth}
         value={dayVal}
         step={1}
-        onChange={(e) => {
-          let newValue = parseInt(e.target.value);
+        onChange={(value) => {
+          let newValue = parseInt(value);
           let diff = newValue - dayVal;
           let base = Boolean(inputDate)
             ? inputDate.getTime()
@@ -632,16 +671,7 @@ const Main = () => {
           setInputDate(newDate);
         }}
       />
-      <button
-        className="text-orange-500 border border-orange-500 rounded-lg mx-5 p-2"
-        onClick={(_) => {
-          setInputDate(null);
-          setDayVal(initialDayVal);
-          setTimeVal(initialTimeVal);
-        }}
-      >
-        Back to Now
-      </button>
+
       <div className="relative">
         <div
           style={{
