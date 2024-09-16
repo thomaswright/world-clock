@@ -506,7 +506,7 @@ const Main = () => {
   let dayRotation = getDayRotation(pickedDate);
   let totalRotation = ((dateRotation + dayRotation) % 360) - 180;
 
-  //cityTimeZones.findFromCityStateProvince(location)
+  // console.log(cityTimeZones.findFromCityStateProvince("London"));
 
   const centerX = width / 2;
   const centerY = height / 2;
@@ -631,7 +631,33 @@ const Main = () => {
 
   return (
     <div className="font-bold">
-      <CitiesDialog />
+      <CitiesDialog
+        addedCities={cities}
+        addCity={(newCity) => {
+          console.log(newCity);
+          setCities((v) => [
+            ...v.filter(
+              (match) =>
+                !(
+                  match.city === newCity.city &&
+                  match.country === newCity.country
+                )
+            ),
+            newCity,
+          ]);
+        }}
+        removeCity={(newCity) => {
+          setCities((v) =>
+            v.filter(
+              (match) =>
+                !(
+                  match.city === newCity.city &&
+                  match.country === newCity.country
+                )
+            )
+          );
+        }}
+      />
       <div className="w-full flex flex-col items-center px-6 pt-6 pb-3">
         <div className="w-full max-w-md">
           <div className=" flex flex-row justify-between w-full">
@@ -649,7 +675,7 @@ const Main = () => {
                 .toISOString()
                 .slice(0, 16)}
               onChange={(e) => {
-                console.log(new Date(e.target.value));
+                // console.log(new Date(e.target.value));
                 setInputDate(new Date(e.target.value));
               }}
             />
