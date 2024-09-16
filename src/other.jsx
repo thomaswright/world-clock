@@ -196,7 +196,7 @@ let getSun = (time) => {
 
 const width = 300;
 let paddingX = 400;
-let paddingY = 300;
+let paddingY = 320;
 
 let getProjection = (rotation) => () => {
   return geoAzimuthalEqualArea()
