@@ -195,7 +195,7 @@ let getSun = (time) => {
 
 const width = 300;
 let paddingX = 400;
-let paddingY = 400;
+let paddingY = 300;
 
 let getProjection = (rotation) => () => {
   return geoAzimuthalEqualArea()
@@ -630,7 +630,7 @@ const Main = () => {
 
   return (
     <div className="font-bold">
-      <div className="w-full flex flex-col items-center p-6">
+      <div className="w-full flex flex-col items-center px-6 pt-6 pb-3">
         <div className="w-full max-w-md">
           <div className=" flex flex-row justify-between w-full">
             <input
@@ -666,62 +666,67 @@ const Main = () => {
               Back to Now
             </button>
           </div>
+          <div className="flex flex-col lg:flex-row lg:gap-4">
+            <div className="w-full">
+              <div className="text-white py-2">Slide Time</div>
+              <Slider
+                classNames={{ form: "w-full", Root: "w-full", Track: "" }}
+                styles={{
+                  Root: {},
+                  Track: {
+                    backgroundColor: nightColors.land,
+                  },
+                }}
+                min={0}
+                max={timeValWidth}
+                value={timeVal}
+                step={1000 * 60 * 10}
+                onChange={(value) => {
+                  let newValue = parseInt(value);
+                  let diff = newValue - timeVal;
+                  let base = Boolean(inputDate)
+                    ? inputDate.getTime()
+                    : nowDate.getTime();
+                  let newDate = new Date(base + diff);
+                  setTimeVal(newValue);
+                  setInputDate(newDate);
+                }}
+              />
+            </div>
+            <div className="w-full">
+              <div className="text-white py-2">Slide Day</div>
 
-          <div className="text-white py-2">Slide Time</div>
-          <Slider
-            classNames={{ form: "w-full", Root: "w-full", Track: "" }}
-            styles={{
-              Root: {},
-              Track: {
-                backgroundColor: nightColors.land,
-              },
-            }}
-            min={0}
-            max={timeValWidth}
-            value={timeVal}
-            step={1000 * 60 * 10}
-            onChange={(value) => {
-              let newValue = parseInt(value);
-              let diff = newValue - timeVal;
-              let base = Boolean(inputDate)
-                ? inputDate.getTime()
-                : nowDate.getTime();
-              let newDate = new Date(base + diff);
-              setTimeVal(newValue);
-              setInputDate(newDate);
-            }}
-          />
-          <div className="text-white py-2">Slide Day</div>
+              <Slider
+                classNames={{ form: "w-full", Root: "w-full", Track: "" }}
+                styles={{
+                  Root: {},
+                  Track: {
+                    backgroundColor: nightColors.land,
+                  },
+                }}
+                min={0}
+                max={dayValWidth}
+                value={dayVal}
+                step={1}
+                onChange={(value) => {
+                  let newValue = parseInt(value);
+                  let diff = newValue - dayVal;
+                  let base = Boolean(inputDate)
+                    ? inputDate.getTime()
+                    : nowDate.getTime();
 
-          <Slider
-            classNames={{ form: "w-full", Root: "w-full", Track: "" }}
-            styles={{
-              Root: {},
-              Track: {
-                backgroundColor: nightColors.land,
-              },
-            }}
-            min={0}
-            max={dayValWidth}
-            value={dayVal}
-            step={1}
-            onChange={(value) => {
-              let newValue = parseInt(value);
-              let diff = newValue - dayVal;
-              let base = Boolean(inputDate)
-                ? inputDate.getTime()
-                : nowDate.getTime();
-
-              let newDate = new Date(base + diff * DAY_MILLISECONDS);
-              setDayVal(newValue);
-              setInputDate(newDate);
-            }}
-          />
+                  let newDate = new Date(base + diff * DAY_MILLISECONDS);
+                  setDayVal(newValue);
+                  setInputDate(newDate);
+                }}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
       <div className="w-full flex flex-row justify-center ">
-        <div className="overflow-x-scroll w-full max-w-4xl">
+        <div className="overflow-x-scroll w-full max-w-3xl">
           <svg
             className=""
             viewBox={`0 0 ${width + paddingX} ${height + paddingY}`}
