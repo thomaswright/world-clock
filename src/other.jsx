@@ -7,6 +7,7 @@ const world = topojson.feature(topology, topology.objects.units);
 import * as solar from "solar-calculator";
 import * as cityTimeZones from "city-timezones";
 import Slider from "./Slider";
+import CitiesDialog from "./CitiesDialog";
 
 let initialCities = [
   {
@@ -630,6 +631,7 @@ const Main = () => {
 
   return (
     <div className="font-bold">
+      <CitiesDialog />
       <div className="w-full flex flex-col items-center px-6 pt-6 pb-3">
         <div className="w-full max-w-md">
           <div className=" flex flex-row justify-between w-full">
