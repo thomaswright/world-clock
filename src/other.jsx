@@ -631,36 +631,42 @@ const Main = () => {
 
   return (
     <div className="font-bold">
-      <CitiesDialog
-        addedCities={cities}
-        addCity={(newCity) => {
-          console.log(newCity);
-          setCities((v) => [
-            ...v.filter(
-              (match) =>
-                !(
-                  match.city === newCity.city &&
-                  match.country === newCity.country
-                )
-            ),
-            newCity,
-          ]);
-        }}
-        removeCity={(newCity) => {
-          setCities((v) =>
-            v.filter(
-              (match) =>
-                !(
-                  match.city === newCity.city &&
-                  match.country === newCity.country
-                )
-            )
-          );
-        }}
-      />
-      <div className="w-full flex flex-col items-center px-6 pt-6 pb-3">
-        <div className="w-full max-w-md">
-          <div className=" flex flex-row justify-between w-full">
+      <div className="w-full flex flex-col items-center px-6 pt-4 pb-3">
+        <div className="w-full max-w-xl">
+          <div className=" flex flex-row justify-between items-center w-full pb-2">
+            <div className="font-thin tracking-widest uppercase text-white text-3xl md:text-4xl ">
+              World Clock
+            </div>
+            <CitiesDialog
+              addedCities={cities}
+              addCity={(newCity) => {
+                console.log(newCity);
+                setCities((v) => [
+                  ...v.filter(
+                    (match) =>
+                      !(
+                        match.city === newCity.city &&
+                        match.country === newCity.country
+                      )
+                  ),
+                  newCity,
+                ]);
+              }}
+              removeCity={(newCity) => {
+                setCities((v) =>
+                  v.filter(
+                    (match) =>
+                      !(
+                        match.city === newCity.city &&
+                        match.country === newCity.country
+                      )
+                  )
+                );
+              }}
+            />
+          </div>
+
+          <div className=" flex flex-row justify-between items-center w-full">
             <input
               className="my-2 py-1 rounded "
               style={{
