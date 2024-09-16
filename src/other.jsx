@@ -481,7 +481,7 @@ const Main = () => {
 
   let [cities, setCities] = useLocalStorage("cities", initialCities);
 
-  let [inputDate, setInputDate] = useState(new Date(now.getTime()));
+  let [inputDate, setInputDate] = useState(null);
   let initialTimeVal = timeValWidth / 2;
   let [timeVal, setTimeVal] = useState(timeValWidth / 2);
   let initialDayVal = dayValWidth / 2;
@@ -635,7 +635,7 @@ const Main = () => {
       <div className="w-full flex flex-col items-center px-6 pt-4 pb-3">
         <div className="w-full max-w-xl">
           <div className=" flex flex-row justify-between items-center w-full pb-2">
-            <div className="font-thin tracking-widest uppercase text-white text-3xl md:text-4xl ">
+            <div className="font-thin tracking-widest uppercase text-white text-2xl ">
               World Clock
             </div>
             <CitiesDialog
@@ -667,7 +667,7 @@ const Main = () => {
             />
           </div>
 
-          <div className=" flex flex-row justify-between items-center w-full">
+          <div className=" flex flex-col sm:flex-row justify-center items-center w-full">
             <input
               className="my-2 py-1 rounded "
               style={{
@@ -686,24 +686,13 @@ const Main = () => {
                 setInputDate(new Date(e.target.value));
               }}
             />
-            <button
-              className=" border rounded-full py-2 px-4 "
-              style={{
-                color: nightColors.land,
-                borderColor: nightColors.land,
-              }}
-              onClick={(_) => {
-                setInputDate(null);
-                setDayVal(initialDayVal);
-                setTimeVal(initialTimeVal);
-              }}
-            >
-              Back to Now
-            </button>
           </div>
-          <div className="flex flex-col lg:flex-row lg:gap-4">
+          <div className="flex flex-col sm:flex-row sm:gap-4">
             <div className="w-full">
-              <div className="text-white py-2">Slide Time</div>
+              <div className=" flex flex-row justify-between items-center w-full">
+                <div className="text-white py-2 font-medium">Adjust Time</div>
+              </div>
+
               <Slider
                 classNames={{ form: "w-full", Root: "w-full", Track: "" }}
                 styles={{
@@ -729,8 +718,25 @@ const Main = () => {
               />
             </div>
             <div className="w-full">
-              <div className="text-white py-2">Slide Day</div>
-
+              <div className=" flex flex-row justify-between items-center w-full">
+                <div className="text-white py-2 font-medium">Adjust Day</div>
+                {Boolean(inputDate) ? (
+                  <button
+                    className=" rounded-full py-2 px-4 "
+                    style={{
+                      color: nightColors.land,
+                      borderColor: nightColors.land,
+                    }}
+                    onClick={(_) => {
+                      setInputDate(null);
+                      setDayVal(initialDayVal);
+                      setTimeVal(initialTimeVal);
+                    }}
+                  >
+                    Reset
+                  </button>
+                ) : null}
+              </div>
               <Slider
                 classNames={{ form: "w-full", Root: "w-full", Track: "" }}
                 styles={{
@@ -761,7 +767,7 @@ const Main = () => {
       </div>
 
       <div className="w-full flex flex-row justify-center ">
-        <div className="overflow-x-scroll w-full max-w-3xl">
+        <div className="overflow-x-scroll w-full max-w-3xl pb-6">
           <svg
             className=""
             viewBox={`0 0 ${width + paddingX} ${height + paddingY}`}
