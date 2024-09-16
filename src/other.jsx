@@ -641,7 +641,6 @@ const Main = () => {
             <CitiesDialog
               addedCities={cities}
               addCity={(newCity) => {
-                console.log(newCity);
                 setCities((v) => [
                   ...v.filter(
                     (match) =>
