@@ -1,5 +1,6 @@
 import { CustomProjection, Graticule } from "@visx/geo";
 import { useEffect, useState, useRef } from "react";
+import { useLocalStorage } from "@uidotdev/usehooks";
 import * as topojson from "topojson-client";
 import topology from "./world-topo.json";
 import { geoAzimuthalEqualArea, geoCircle, geoPath, geoContains } from "d3";
@@ -479,7 +480,8 @@ function rotatePoint(x, y, angle) {
 const Main = () => {
   let now = new Date();
 
-  let [cities, setCities] = useState(initialCities);
+  let [cities, setCities] = useLocalStorage("cities", initialCities);
+
   let [inputDate, setInputDate] = useState(new Date(now.getTime()));
   let initialTimeVal = timeValWidth / 2;
   let [timeVal, setTimeVal] = useState(timeValWidth / 2);
