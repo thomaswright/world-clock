@@ -11,7 +11,7 @@ const SliderDemo = ({
   value,
   step,
 }) => (
-  <form>
+  <form className={classNames.form} style={styles.form}>
     <Slider.Root
       className={"SliderRoot" + " " + classNames.Root}
       style={styles.Root}

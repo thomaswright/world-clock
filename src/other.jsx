@@ -614,95 +614,102 @@ const Main = () => {
   return (
     <div className=" p-6">
       <div className="w-full flex flex-col items-center ">
-        <div className=" flex flex-row justify-between w-96">
-          <input
-            className="my-2 py-1 rounded"
-            style={{
-              backgroundColor: "black",
-              color: nightColors.land,
+        <div className="w-full max-w-md">
+          <div className=" flex flex-row justify-between w-full">
+            <input
+              className="my-2 py-1 rounded"
+              style={{
+                backgroundColor: "black",
+                color: nightColors.land,
+              }}
+              type="datetime-local"
+              value={new Date(
+                pickedDate.getTime() -
+                  pickedDate.getTimezoneOffset() * 60 * 1000
+              )
+                .toISOString()
+                .slice(0, 16)}
+              onChange={(e) => {
+                console.log(new Date(e.target.value));
+                setInputDate(new Date(e.target.value));
+              }}
+            />
+            <button
+              className=" border rounded-full py-2 px-4"
+              style={{
+                color: nightColors.land,
+                borderColor: nightColors.land,
+              }}
+              onClick={(_) => {
+                setInputDate(null);
+                setDayVal(initialDayVal);
+                setTimeVal(initialTimeVal);
+              }}
+            >
+              Back to Now
+            </button>
+          </div>
+
+          <div className="text-white py-2">Slide Time</div>
+          <Slider
+            classNames={{ form: "w-full", Root: "w-full", Track: "" }}
+            styles={{
+              Root: {},
+              Track: {
+                backgroundColor: nightColors.land,
+              },
             }}
-            type="datetime-local"
-            value={new Date(
-              pickedDate.getTime() - pickedDate.getTimezoneOffset() * 60 * 1000
-            )
-              .toISOString()
-              .slice(0, 16)}
-            onChange={(e) => {
-              console.log(new Date(e.target.value));
-              setInputDate(new Date(e.target.value));
+            min={0}
+            max={timeValWidth}
+            value={timeVal}
+            step={1000 * 60 * 10}
+            onChange={(value) => {
+              let newValue = parseInt(value);
+              let diff = newValue - timeVal;
+              let base = Boolean(inputDate)
+                ? inputDate.getTime()
+                : nowDate.getTime();
+              let newDate = new Date(base + diff);
+              setTimeVal(newValue);
+              setInputDate(newDate);
             }}
           />
-          <button
-            className=" border rounded-full py-2 px-4"
-            style={{
-              color: nightColors.land,
-              borderColor: nightColors.land,
+          <div className="text-white py-2">Slide Day</div>
+
+          <Slider
+            classNames={{ form: "w-full", Root: "w-full", Track: "" }}
+            styles={{
+              Root: {},
+              Track: {
+                backgroundColor: nightColors.land,
+              },
             }}
-            onClick={(_) => {
-              setInputDate(null);
-              setDayVal(initialDayVal);
-              setTimeVal(initialTimeVal);
+            min={0}
+            max={dayValWidth}
+            value={dayVal}
+            step={1}
+            onChange={(value) => {
+              let newValue = parseInt(value);
+              let diff = newValue - dayVal;
+              let base = Boolean(inputDate)
+                ? inputDate.getTime()
+                : nowDate.getTime();
+
+              let newDate = new Date(base + diff * DAY_MILLISECONDS);
+              setDayVal(newValue);
+              setInputDate(newDate);
             }}
-          >
-            Back to Now
-          </button>
+          />
         </div>
-
-        <div className="text-white py-2">Slide Time</div>
-        <Slider
-          classNames={{ Root: "w-96", Track: "" }}
-          styles={{
-            Root: {},
-            Track: {
-              backgroundColor: nightColors.land,
-            },
-          }}
-          min={0}
-          max={timeValWidth}
-          value={timeVal}
-          step={1000 * 60 * 10}
-          onChange={(value) => {
-            let newValue = parseInt(value);
-            let diff = newValue - timeVal;
-            let base = Boolean(inputDate)
-              ? inputDate.getTime()
-              : nowDate.getTime();
-            let newDate = new Date(base + diff);
-            setTimeVal(newValue);
-            setInputDate(newDate);
-          }}
-        />
-        <div className="text-white py-2">Slide Day</div>
-
-        <Slider
-          classNames={{ Root: "w-96", Track: "" }}
-          styles={{
-            Root: {},
-            Track: {
-              backgroundColor: nightColors.land,
-            },
-          }}
-          min={0}
-          max={dayValWidth}
-          value={dayVal}
-          step={1}
-          onChange={(value) => {
-            let newValue = parseInt(value);
-            let diff = newValue - dayVal;
-            let base = Boolean(inputDate)
-              ? inputDate.getTime()
-              : nowDate.getTime();
-
-            let newDate = new Date(base + diff * DAY_MILLISECONDS);
-            setDayVal(newValue);
-            setInputDate(newDate);
-          }}
-        />
       </div>
 
       <div className="w-full flex flex-row justify-center ">
-        <div className="overflow-x-scroll">
-          <svg width={width + paddingX} height={height + paddingY}>
+        <div className="overflow-x-scroll w-full max-w-4xl">
+          <svg
+            viewBox={`0 0 ${width + paddingX} ${height + paddingY}`}
+            width={"100%"}
+            height={"100%"}
+          >
             <defs>
               <clipPath id="nightClip">
                 <path
