@@ -195,7 +195,7 @@ let getSun = (time) => {
 
 const width = 300;
 let paddingX = 400;
-let paddingY = 300;
+let paddingY = 400;
 
 let getProjection = (rotation) => () => {
   return geoAzimuthalEqualArea()
@@ -288,7 +288,7 @@ function getTodayDayString(time) {
 }
 
 function crest(x) {
-  return (1 - Math.sqrt((1 + Math.cos(x)) / 2)) ** 3;
+  return (1 - Math.sqrt((1 + Math.cos(x)) / 2)) ** 2;
 }
 
 function dayNum(time) {
@@ -784,7 +784,7 @@ const Main = () => {
 
                 let cityAngleRads = ((2 * cityAngle) / 180) * Math.PI;
 
-                let additionalDist = crest(cityAngleRads) * 50;
+                let additionalDist = crest(cityAngleRads) * 90;
 
                 let isNight = geoContains(currentNightPath, [cityLon, cityLat]);
                 let color = dayTimezoneParity(pickedDate, timezone)
@@ -805,7 +805,7 @@ const Main = () => {
                   >
                     <path
                       d={`M ${x}, 0 l ${
-                        40 + additionalDist
+                        20 + additionalDist
                       }, 0 l ${lineX} ${lineY}`}
                       transform={`rotate(${cityAngle}, 0,0)`}
                       style={{
@@ -817,7 +817,7 @@ const Main = () => {
                     <g
                       transform={
                         `rotate(${cityAngle}, 0, 0) translate(${
-                          x + 40 + additionalDist
+                          x + 20 + additionalDist
                         }, ${y}) 
                       rotate(${
                         flipLabel ? -cityAngle + 180 : -cityAngle
