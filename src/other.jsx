@@ -6,7 +6,6 @@ import topology from "./world-topo.json";
 import { geoAzimuthalEqualArea, geoCircle, geoPath, geoContains } from "d3";
 const world = topojson.feature(topology, topology.objects.units);
 import * as solar from "solar-calculator";
-import * as cityTimeZones from "city-timezones";
 import Slider from "./Slider";
 import CitiesDialog from "./CitiesDialog";
 
