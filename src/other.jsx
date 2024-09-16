@@ -194,7 +194,7 @@ let getSun = (time) => {
 };
 
 const width = 300;
-let paddingX = 500;
+let paddingX = 400;
 let paddingY = 300;
 
 let getProjection = (rotation) => () => {
@@ -231,6 +231,7 @@ function getTimeStringInTimezone(time, timezone) {
     hour: "numeric",
     minute: "numeric",
     second: "numeric",
+    // dayPeriod: "short",
     hour12: false,
   });
 }
@@ -286,30 +287,6 @@ function getTodayDayString(time) {
   return dayString(time);
 }
 
-const Timezone = ({ time, flipLabel, city, timezone, color }) => {
-  const [now, setNow] = useState(time.getTime());
-
-  useEffect(() => {
-    let id = setInterval(() => {
-      setNow((v) => v + 1000);
-    }, 1000);
-
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    setNow((_) => time.getTime());
-  }, [time]);
-
-  let text = city + " " + getTimeStringInTimezone(new Date(now), timezone);
-
-  return (
-    <text textAnchor={flipLabel ? "end" : "start"} fill={color}>
-      {text}
-    </text>
-  );
-};
-
 function crest(x) {
   return (1 - Math.sqrt((1 + Math.cos(x)) / 2)) ** 3;
 }
@@ -336,6 +313,46 @@ function dayTimezoneParity(date, timezone) {
 
   return daysSinceEpoch % 2 === 0;
 }
+
+const Timezone = ({ time, flipLabel, city, timezone, color }) => {
+  const [now, setNow] = useState(time.getTime());
+
+  useEffect(() => {
+    let id = setInterval(() => {
+      setNow((v) => v + 1000);
+    }, 1000);
+
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    setNow((_) => time.getTime());
+  }, [time]);
+
+  let displayTime = getTimeStringInTimezone(new Date(now), timezone);
+
+  let text = city + " " + displayTime;
+
+  return (
+    <g>
+      <text
+        transform={"translate(0, -9)"}
+        textAnchor={flipLabel ? "end" : "start"}
+        fill={color}
+      >
+        {city}
+      </text>
+      <text
+        className="font-mono"
+        transform={"translate(0, 9)"}
+        textAnchor={flipLabel ? "end" : "start"}
+        fill={color}
+      >
+        {displayTime}
+      </text>
+    </g>
+  );
+};
 
 const SvgArc = ({
   id,
@@ -612,12 +629,12 @@ const Main = () => {
   };
 
   return (
-    <div className=" p-6">
-      <div className="w-full flex flex-col items-center ">
+    <div className="font-bold">
+      <div className="w-full flex flex-col items-center p-6">
         <div className="w-full max-w-md">
           <div className=" flex flex-row justify-between w-full">
             <input
-              className="my-2 py-1 rounded"
+              className="my-2 py-1 rounded "
               style={{
                 backgroundColor: "black",
                 color: nightColors.land,
@@ -635,7 +652,7 @@ const Main = () => {
               }}
             />
             <button
-              className=" border rounded-full py-2 px-4"
+              className=" border rounded-full py-2 px-4 "
               style={{
                 color: nightColors.land,
                 borderColor: nightColors.land,
@@ -706,6 +723,7 @@ const Main = () => {
       <div className="w-full flex flex-row justify-center ">
         <div className="overflow-x-scroll w-full max-w-4xl">
           <svg
+            className=""
             viewBox={`0 0 ${width + paddingX} ${height + paddingY}`}
             width={"100%"}
             height={"100%"}
