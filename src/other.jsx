@@ -676,6 +676,12 @@ const Main = () => {
 
     if (Boolean(dragAngle.current)) {
       let angleDiff = angle - dragAngle.current;
+      console.log(angleDiff);
+      if (angleDiff > 0.75 * 2 * Math.PI) {
+        angleDiff = angleDiff - 2 * Math.PI;
+      } else if (angleDiff < -0.75 * 2 * Math.PI) {
+        angleDiff = angleDiff + 2 * Math.PI;
+      }
 
       dragAngle.current = angle;
 
