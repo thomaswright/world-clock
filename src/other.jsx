@@ -701,7 +701,7 @@ const Main = () => {
   };
 
   return (
-    <div className="font-bold">
+    <div className="font-bold flex flex-col min-h-screen">
       <div className="w-full flex flex-col items-center px-6 pt-2 sm:-mb-6">
         <div className="w-full max-w-xl">
           <div className=" flex flex-row justify-between items-center w-full">
@@ -882,7 +882,7 @@ const Main = () => {
           </svg>
         </div>
       </div>
-      <div className="w-full flex flex-col items-center px-6 pt-2 pb-10">
+      <div className="w-full flex flex-col items-center px-6 pt-2 pb-2">
         <div className="w-full max-w-xl">
           <div className=" flex flex-col sm:flex-row justify-between items-center w-full">
             <input
@@ -984,6 +984,16 @@ const Main = () => {
             </div>
           </div>
         </div>
+      </div>
+      <div className="flex-1" />
+      <div className="text-neutral-300 text-xs text-center p-6 py-3 ">
+        {"By "}
+        <a
+          className="text-blue-500 font-medium"
+          href={"https://github.com/thomaswright/world-clock"}
+        >
+          {"Thomas Wright"}
+        </a>
       </div>
     </div>
   );
