@@ -508,6 +508,10 @@ const Main = () => {
   let [dayVal, setDayVal] = useState(initialDayVal);
 
   let [nowDate, setNowDate] = useState(new Date());
+  let isDragging = useRef(false);
+  let dragAngle = useRef(null);
+  let dragEl = useRef(null);
+
   let pickedDate = Boolean(inputDate) ? inputDate : nowDate;
 
   useEffect(() => {
@@ -650,6 +654,46 @@ const Main = () => {
     );
   };
 
+  let drag = (event) => {
+    if (!isDragging.current) return;
+    let clientX, clientY;
+
+    if (event.touches) {
+      clientX = event.touches[0].clientX;
+      clientY = event.touches[0].clientY;
+    } else {
+      clientX = event.clientX;
+      clientY = event.clientY;
+    }
+    const svgRect = dragEl.current.getBoundingClientRect();
+    let dragCenterX = (svgRect.right - svgRect.left) / 2;
+    let dragCenterY = (svgRect.bottom - svgRect.top) / 2;
+
+    const x = clientX - dragCenterX - svgRect.left;
+    const y = clientY - dragCenterY - svgRect.top;
+
+    const angle = Math.atan2(y, x);
+
+    if (Boolean(dragAngle.current)) {
+      let angleDiff = angle - dragAngle.current;
+
+      dragAngle.current = angle;
+
+      let anglePercent = angleDiff / (2 * Math.PI);
+
+      setInputDate((v) => {
+        let newDate = new Date(
+          (Boolean(v) ? v.getTime() : now.getTime()) -
+            anglePercent * DAY_MILLISECONDS
+        );
+
+        return newDate;
+      });
+    } else {
+      dragAngle.current = angle;
+    }
+  };
+
   return (
     <div className="font-bold">
       <div className="w-full flex flex-col items-center px-6 pt-2 sm:-mb-6">
@@ -689,7 +733,28 @@ const Main = () => {
       </div>
 
       <div className="w-full flex flex-row justify-center ">
-        <div className="overflow-x-scroll w-full max-w-3xl">
+        <div
+          ref={dragEl}
+          className="overflow-x-scroll w-full max-w-3xl"
+          onMouseDown={(_) => {
+            isDragging.current = true;
+            dragAngle.current = null;
+          }}
+          onMouseUp={(_) => {
+            isDragging.current = false;
+            dragAngle.current = null;
+          }}
+          onTouchStart={(_) => {
+            isDragging.current = true;
+            dragAngle.current = null;
+          }}
+          onTouchEnd={(_) => {
+            isDragging.current = false;
+            dragAngle.current = null;
+          }}
+          onMouseMove={drag}
+          onTouchMove={drag}
+        >
           <svg
             className=""
             viewBox={`0 0 ${width + paddingX} ${height + paddingY}`}
@@ -706,6 +771,7 @@ const Main = () => {
                 <circle r={centerX - 0} cx={centerX} cy={centerY} />
               </clipPath>
             </defs>
+
             <g
               transform={`translate(${paddingX / 2}, ${paddingY / 2})`}
               clipPath="url(#antarcticaClip)"
