@@ -531,8 +531,6 @@ const Main = () => {
   let dayRotation = getDayRotation(pickedDate);
   let totalRotation = ((dateRotation + dayRotation) % 360) - 180;
 
-  // console.log(cityTimeZones.findFromCityStateProvince("London"));
-
   const centerX = width / 2;
   const centerY = height / 2;
 
@@ -676,7 +674,6 @@ const Main = () => {
 
     if (Boolean(dragAngle.current)) {
       let angleDiff = angle - dragAngle.current;
-      console.log(angleDiff);
       if (angleDiff > 0.75 * 2 * Math.PI) {
         angleDiff = angleDiff - 2 * Math.PI;
       } else if (angleDiff < -0.75 * 2 * Math.PI) {
@@ -802,7 +799,10 @@ const Main = () => {
                   : weekdayColors.day1;
 
                 return (
-                  <g transform={`translate(${paddingX / 2}, ${paddingY / 2})`}>
+                  <g
+                    key={String(cityLat) + String(cityLon)}
+                    transform={`translate(${paddingX / 2}, ${paddingY / 2})`}
+                  >
                     <circle
                       cx={x}
                       cy={y}
@@ -839,6 +839,7 @@ const Main = () => {
 
                 return (
                   <g
+                    key={String(cityLat) + String(cityLon)}
                     transform={`translate(${centerX + paddingX / 2}, ${
                       centerY + paddingY / 2
                     })`}
@@ -899,7 +900,6 @@ const Main = () => {
                 .toISOString()
                 .slice(0, 16)}
               onChange={(e) => {
-                // console.log(new Date(e.target.value));
                 setInputDate(new Date(e.target.value));
               }}
             />

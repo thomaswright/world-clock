@@ -10,7 +10,6 @@ import {
 } from "@radix-ui/react-icons";
 import * as cityTimeZones from "city-timezones";
 const CitiesDialog = ({ addedCities, addCity, removeCity }) => {
-  // console.log(addedCities);
   let [search, setSearch] = useState("");
   return (
     <Dialog.Root>
@@ -43,7 +42,10 @@ const CitiesDialog = ({ addedCities, addCity, removeCity }) => {
                 : cityTimeZones.findFromCityStateProvince(search)
               ).map((result) => {
                 return (
-                  <div className="py-2 px-2 flex flex-row justify-between items-center">
+                  <div
+                    key={String(result.lat) + String(result.lon)}
+                    className="py-2 px-2 flex flex-row justify-between items-center"
+                  >
                     <div className="flex-1">
                       <div className="text-white font-bold leading-none pb-1">
                         {result.city}
