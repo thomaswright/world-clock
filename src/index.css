@@ -6,3 +6,7 @@ html {
   @apply bg-black;
   overscroll-behavior: none;
 }
+
+input[type="datetime-local"] {
+  -webkit-appearance: none;
+}

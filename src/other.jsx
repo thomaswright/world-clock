@@ -355,6 +355,8 @@ const Timezone = ({ time, flipLabel, city, timezone, color }) => {
   );
 };
 
+let isFirefox = navigator.userAgent.includes("Firefox");
+
 const SvgArc = ({
   id,
   text,
@@ -391,7 +393,7 @@ const SvgArc = ({
   const x2 = cx + r * Math.cos(endAngleRad);
   const y2 = cy + r * Math.sin(endAngleRad);
 
-  let tr = r + 8;
+  let tr = r + (isFirefox ? 8 : 12);
 
   // Calculate the start point of the arc
   const tx1 = cx + tr * Math.cos(startAngleRad);
@@ -430,6 +432,7 @@ const SvgArc = ({
       />
       <text fill={stroke} fontSize="16">
         <textPath
+          alignmentBaseline="middle"
           href={`#${id}`}
           startOffset={"35%"}
           textAnchor="start"
@@ -654,7 +657,7 @@ const Main = () => {
 
   let drag = (event) => {
     if (!isDragging.current) return;
-
+    event.preventDefault();
     let clientX, clientY;
 
     if (event.touches) {
@@ -699,7 +702,7 @@ const Main = () => {
   };
 
   return (
-    <div className="font-bold flex flex-col min-h-screen">
+    <div className="font-bold flex flex-col min-h-dvh">
       <div className="w-full flex flex-col items-center px-6 pt-2 sm:-mb-6">
         <div className="w-full max-w-xl">
           <div className=" flex flex-row justify-between items-center w-full">
@@ -736,7 +739,7 @@ const Main = () => {
         </div>
       </div>
 
-      <div className="w-full flex flex-row justify-center ">
+      <div className="w-full flex flex-row justify-center items-center flex-1 ">
         <div
           ref={dragEl}
           className="overflow-x-scroll w-full max-w-[760px]"
@@ -986,7 +989,6 @@ const Main = () => {
           </div>
         </div>
       </div>
-      <div className="flex-1" />
       <div className="text-neutral-300 text-xs text-center p-6 py-3 ">
         {"By "}
         <a
