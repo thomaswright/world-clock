@@ -654,6 +654,7 @@ const Main = () => {
 
   let drag = (event) => {
     if (!isDragging.current) return;
+
     let clientX, clientY;
 
     if (event.touches) {
@@ -738,7 +739,7 @@ const Main = () => {
       <div className="w-full flex flex-row justify-center ">
         <div
           ref={dragEl}
-          className="overflow-x-scroll w-full max-w-3xl"
+          className="overflow-x-scroll w-full max-w-[760px]"
           onMouseDown={(_) => {
             isDragging.current = true;
             dragAngle.current = null;
@@ -883,7 +884,7 @@ const Main = () => {
           </svg>
         </div>
       </div>
-      <div className="w-full flex flex-col items-center px-6 pt-2 pb-2">
+      <div className="w-full flex flex-col items-center px-6 pb-2 ">
         <div className="w-full max-w-xl">
           <div className=" flex flex-col sm:flex-row justify-between items-center w-full">
             <input
