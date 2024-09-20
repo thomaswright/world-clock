@@ -530,6 +530,23 @@ function getDateDiff(date1, date2) {
   )}h ${String(minutes).padStart(2, "0")}m`;
 }
 
+const StarSVG = ({ width, height }) => {
+  return (
+    <svg width={width} height={height} viewBox="0 0 200 200">
+      <g
+        transform="matrix(1,0,0,1,-200.381,-195.367) matrix(0.755146,0,0,0.755146,-57.9159,-27.9865)"
+        fill={"yellow"}
+      >
+        <path
+          d="M474.474,302.332L506.279,368.713L578.008,352.192L545.939,418.446L603.579,
+            464.224L531.785,480.461L531.931,554.068L474.474,508.06L417.017,554.068L417.163,
+            480.461L345.37,464.224L403.009,418.446L370.94,352.192L442.669,368.713L474.474,302.332Z"
+        />
+      </g>
+    </svg>
+  );
+};
+
 const Main = () => {
   let now = new Date();
   // let test = new Date(now.getTime() + DAY_MILLISECONDS * 120);
@@ -741,8 +758,70 @@ const Main = () => {
       <div className="w-full flex flex-col items-center px-6 pt-2 sm:-mb-6">
         <div className="w-full max-w-xl">
           <div className=" flex flex-row justify-between items-center w-full">
-            <div className="font-thin tracking-widest uppercase text-white text-xl ">
+            <div className="font-thin tracking-widest uppercase text-white text-xl relative">
               World Clock
+              <div id={"model"} className="w-16 h-16 absolute self-start">
+                <svg viewBox={`0 0 120 120`}>
+                  <g transform="translate(60, 60)">
+                    <circle
+                      stroke={"#5E5E5E"}
+                      strokeWidth={2}
+                      r={40}
+                      cx={0}
+                      cy={0}
+                    />
+                    <g transform="translate(-16, -16)">
+                      <StarSVG width={32} height={32} />
+                    </g>
+                    {/* <rect
+                      transform="translate(-8, -8)"
+                      fill={"yellow"}
+                      width={16}
+                      height={16}
+                      x={0}
+                      y={0}
+                    />
+                    <rect
+                      transform="rotate(45) translate(-8, -8) "
+                      fill={"#FFC400"}
+                      width={16}
+                      height={16}
+                      x={0}
+                      y={0}
+                    /> */}
+
+                    <g
+                      transform={` rotate(${
+                        -dateRotation - 90
+                      }) translate(40, 0)`}
+                    >
+                      <circle fill={"#0062B8"} r={8} cx={0} cy={0} />
+                      <path d="M 0 -8 A 8 8 0 0 0 0 8" fill="white " />
+                      <g
+                        transform={`rotate(${
+                          -moonAngle + 90
+                        }) translate(0, 16)`}
+                      >
+                        <circle fill={"white"} r={3} cx={0} cy={0} />
+                      </g>
+                      {/* 
+                      <g transform={`translate(0, 20) rotate(${-moonAngle}) `}>
+                        <circle
+                          cx={0}
+                          cy={0}
+                          r={4}
+                          fill={"oklch(0.56 0.06 199.91)"}
+                        />
+                        <g
+                          transform={`rotate(${moonAngle - dateRotation + 90})`}
+                        >
+                          <path d="M 0 -4 A 4 4 0 0 1 0 4" fill="white " />
+                        </g>
+                      </g> */}
+                    </g>
+                  </g>
+                </svg>
+              </div>
             </div>
             <CitiesDialog
               addedCities={cities}
@@ -922,6 +1001,7 @@ const Main = () => {
                 );
               })}
             </g>
+
             <g
               key={"moon"}
               transform={`translate(${centerX + paddingX / 2}, ${
@@ -1063,5 +1143,33 @@ const Main = () => {
     </div>
   );
 };
+
+// <g
+//   key={"sun"}
+//   transform={`translate(${centerX + paddingX / 2}, ${
+//     centerY + paddingY / 2
+//   }) rotate(${-dateRotation + 90}) translate(${
+//     width / 2 + 42
+//   }, 0) `}
+// >
+//   <rect
+//     x={-10}
+//     y={-10}
+//     height={20}
+//     width={20}
+//     // rx={2}
+//     fill={"yellow"}
+//   />
+//   <rect
+//     transform="rotate(45)"
+//     x={-10}
+//     y={-10}
+//     height={20}
+//     width={20}
+//     // rx={2}
+//     fill={"yellow"}
+//   />
+//   {/* <circle cx={0} cy={0} r={9} fill={"black"} /> */}
+// </g>
 
 export default Main;
