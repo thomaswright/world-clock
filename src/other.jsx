@@ -549,9 +549,8 @@ const StarSVG = ({ width, height }) => {
 
 const MoonPhase = ({ moonPhaseAngle }) => {
   let phase = moonPhaseAngle / 360;
-  let theta = Math.PI * phase * 4;
-  let r = Math.abs(50 * (1 / Math.sin((theta + Math.PI) / 2)));
-
+  let theta = Math.PI * phase * 2;
+  let minorAxis = 50 * Math.abs(Math.cos(theta));
   let [sweepFlag1, sweepFlag2] =
     phase < 0.25
       ? [1, 0]
@@ -565,7 +564,7 @@ const MoonPhase = ({ moonPhaseAngle }) => {
     <svg viewBox={`0 0 120 120`}>
       <circle cx={60} cy={60} r={50} fill={"#467F82"} />
       <path
-        d={`M 60 10 A ${r} ${r} 0 0 ${sweepFlag1} 60 110 A 1 1 0 0 ${sweepFlag2} 60 10`}
+        d={`M 60 10 A ${minorAxis} 50 0 0 ${sweepFlag1} 60 110 A 1 1 0 0 ${sweepFlag2} 60 10`}
         fill="white "
       />
     </svg>
