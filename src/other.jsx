@@ -466,6 +466,15 @@ const SvgArc = ({
   );
 };
 
+function getMoonAngle(time) {
+  const synodicMonth = 29.53058867;
+  const newMoon = new Date("2000-01-06T18:14:00Z");
+  const diff = (time.getTime() - newMoon.getTime()) / DAY_MILLISECONDS;
+  const phase = (diff % synodicMonth) / synodicMonth;
+  const moonAngle = phase * 360;
+  return moonAngle;
+}
+
 function rotatePoint(x, y, angle) {
   // Convert the angle from degrees to radians (if necessary)
   const radians = (angle * Math.PI) / 180;
@@ -478,6 +487,7 @@ function rotatePoint(x, y, angle) {
 
   return [xNew, yNew];
 }
+
 function getDateDiff(date1, date2) {
   // Get the absolute difference in milliseconds
   let diffInMs = Math.abs(date2 - date1);
@@ -775,6 +785,16 @@ const Main = () => {
               <g clipPath="url(#nightClip)">{mapSvg(nightColors)}</g>
             </g>
             <g>{dateline(pickedDate)}</g>
+            <g
+              key={"moon"}
+              transform={`translate(${centerX + paddingX / 2}, ${
+                centerY + paddingY / 2
+              }) rotate(${-getMoonAngle(pickedDate)}) translate(${
+                width / 2 + 42
+              }, 0) `}
+            >
+              <circle cx={0} cy={0} r={12} fill={"red"} />
+            </g>
             <g>
               {cities.map((cityData) => {
                 let {
