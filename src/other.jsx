@@ -906,7 +906,10 @@ const Main = () => {
                 .toISOString()
                 .slice(0, 16)}
               onChange={(e) => {
-                setInputDate(new Date(e.target.value));
+                const date = new Date(e.target.value);
+                if (date instanceof Date && !isNaN(date)) {
+                  setInputDate(date);
+                }
               }}
             />
             <div className="text-white font-thin font-mono">
