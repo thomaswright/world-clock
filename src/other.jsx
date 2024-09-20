@@ -483,7 +483,7 @@ function getMoonPhaseName(angle) {
     return "Waxing Crescent";
   } else if (phase < 0.27) {
     return "First Quarter";
-  } else if (phase < 0.5) {
+  } else if (phase < 0.47) {
     return "Waxing Gibbous";
   } else if (phase < 0.53) {
     return "Full Moon";
@@ -547,6 +547,31 @@ const StarSVG = ({ width, height }) => {
   );
 };
 
+const MoonPhase = ({ moonPhaseAngle }) => {
+  let phase = moonPhaseAngle / 360;
+  let theta = Math.PI * phase * 4;
+  let r = Math.abs(50 * (1 / Math.sin((theta + Math.PI) / 2)));
+
+  let [sweepFlag1, sweepFlag2] =
+    phase < 0.25
+      ? [1, 0]
+      : phase < 0.5
+      ? [0, 0]
+      : phase < 0.75
+      ? [1, 1]
+      : [0, 1];
+
+  return (
+    <svg viewBox={`0 0 120 120`}>
+      <circle cx={60} cy={60} r={50} fill={"#467F82"} />
+      <path
+        d={`M 60 10 A ${r} ${r} 0 0 ${sweepFlag1} 60 110 A 1 1 0 0 ${sweepFlag2} 60 10`}
+        fill="white "
+      />
+    </svg>
+  );
+};
+
 const Main = () => {
   let now = new Date();
   // let test = new Date(now.getTime() + DAY_MILLISECONDS * 120);
@@ -585,6 +610,8 @@ const Main = () => {
 
   let moonAngle = getMoonAngle(pickedDate);
   // Todo: fix dateRotation, sunAngle discrepancy
+
+  let moonPhaseAngle = (moonAngle - dateRotation + 90 + 360) % 360;
 
   const centerX = width / 2;
   const centerY = height / 2;
@@ -757,23 +784,40 @@ const Main = () => {
     <div className="font-bold flex flex-col min-h-dvh">
       <div className="w-full flex flex-col items-center px-6 pt-2 sm:-mb-6">
         <div className="w-full max-w-xl">
-          <div className=" flex flex-row justify-between items-center w-full">
-            <div className="font-thin tracking-widest uppercase text-white text-xl relative">
+          <div className=" flex flex-row justify-between items-center w-full ">
+            <div className="font-thin tracking-widest uppercase text-white text-xl ">
               World Clock
-              <div id={"model"} className="w-16 h-16 absolute self-start">
-                <svg viewBox={`0 0 120 120`}>
-                  <g transform="translate(60, 60)">
-                    <circle
-                      stroke={"#5E5E5E"}
-                      strokeWidth={2}
-                      r={40}
-                      cx={0}
-                      cy={0}
-                    />
-                    <g transform="translate(-16, -16)">
-                      <StarSVG width={32} height={32} />
-                    </g>
-                    {/* <rect
+            </div>
+            <CitiesDialog
+              addedCities={cities}
+              addCity={(newCity) => {
+                setCities((v) => [
+                  ...v.filter((match) => !(makeKey(match) == makeKey(newCity))),
+                  newCity,
+                ]);
+              }}
+              removeCity={(newCity) => {
+                setCities((v) =>
+                  v.filter((match) => !(makeKey(match) == makeKey(newCity)))
+                );
+              }}
+            />
+          </div>
+          <div className="relative w-full">
+            <div id={"model"} className="w-16 h-16 absolute ">
+              <svg viewBox={`0 0 120 120`}>
+                <g transform="translate(60, 60)">
+                  <circle
+                    stroke={"#5E5E5E"}
+                    strokeWidth={2}
+                    r={40}
+                    cx={0}
+                    cy={0}
+                  />
+                  <g transform="translate(-16, -16)">
+                    <StarSVG width={32} height={32} />
+                  </g>
+                  {/* <rect
                       transform="translate(-8, -8)"
                       fill={"yellow"}
                       width={16}
@@ -790,21 +834,21 @@ const Main = () => {
                       y={0}
                     /> */}
 
+                  <g
+                    transform={` rotate(${
+                      -dateRotation - 90
+                    }) translate(40, 0)`}
+                  >
+                    <circle fill={"#0062B8"} r={8} cx={0} cy={0} />
+                    <path d="M 0 -8 A 8 8 0 0 0 0 8" fill="white " />
                     <g
-                      transform={` rotate(${
-                        -dateRotation - 90
-                      }) translate(40, 0)`}
+                      transform={`rotate(${
+                        -moonAngle + dateRotation
+                      }) translate(0, 16)`}
                     >
-                      <circle fill={"#0062B8"} r={8} cx={0} cy={0} />
-                      <path d="M 0 -8 A 8 8 0 0 0 0 8" fill="white " />
-                      <g
-                        transform={`rotate(${
-                          -moonAngle + 90
-                        }) translate(0, 16)`}
-                      >
-                        <circle fill={"white"} r={3} cx={0} cy={0} />
-                      </g>
-                      {/* 
+                      <circle fill={"white"} r={3} cx={0} cy={0} />
+                    </g>
+                    {/* 
                       <g transform={`translate(0, 20) rotate(${-moonAngle}) `}>
                         <circle
                           cx={0}
@@ -818,25 +862,17 @@ const Main = () => {
                           <path d="M 0 -4 A 4 4 0 0 1 0 4" fill="white " />
                         </g>
                       </g> */}
-                    </g>
                   </g>
-                </svg>
+                </g>
+              </svg>
+            </div>
+            <div id={"moonPhase"} className="w-12 h-12 absolute right-0 ">
+              <MoonPhase moonPhaseAngle={moonPhaseAngle} />
+
+              <div className="text-white text-xs font-thin w-full text-center">
+                {getMoonPhaseName(moonPhaseAngle)}
               </div>
             </div>
-            <CitiesDialog
-              addedCities={cities}
-              addCity={(newCity) => {
-                setCities((v) => [
-                  ...v.filter((match) => !(makeKey(match) == makeKey(newCity))),
-                  newCity,
-                ]);
-              }}
-              removeCity={(newCity) => {
-                setCities((v) =>
-                  v.filter((match) => !(makeKey(match) == makeKey(newCity)))
-                );
-              }}
-            />
           </div>
         </div>
       </div>
@@ -1008,7 +1044,7 @@ const Main = () => {
                 centerY + paddingY / 2
               }) rotate(${-moonAngle}) translate(${width / 2 + 42}, 0) `}
             >
-              <circle cx={0} cy={0} r={12} fill={"oklch(0.56 0.06 199.91)"} />
+              <circle cx={0} cy={0} r={12} fill={"#467F82"} />
               <g transform={`rotate(${moonAngle - dateRotation + 90})`}>
                 <path d="M 0 -12 A 12 12 0 0 1 0 12" fill="white " />
                 {/* <text
