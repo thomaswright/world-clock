@@ -475,6 +475,27 @@ function getMoonAngle(time) {
   return moonAngle;
 }
 
+function getMoonPhaseName(angle) {
+  let phase = angle / 360;
+  if (phase < 0.03 || phase > 0.97) {
+    return "New Moon";
+  } else if (phase < 0.25) {
+    return "Waxing Crescent";
+  } else if (phase < 0.27) {
+    return "First Quarter";
+  } else if (phase < 0.5) {
+    return "Waxing Gibbous";
+  } else if (phase < 0.53) {
+    return "Full Moon";
+  } else if (phase < 0.75) {
+    return "Waning Gibbous";
+  } else if (phase < 0.77) {
+    return "Last Quarter";
+  } else {
+    return "Waning Crescent";
+  }
+}
+
 function rotatePoint(x, y, angle) {
   // Convert the angle from degrees to radians (if necessary)
   const radians = (angle * Math.PI) / 180;
@@ -511,6 +532,7 @@ function getDateDiff(date1, date2) {
 
 const Main = () => {
   let now = new Date();
+  // let test = new Date(now.getTime() + DAY_MILLISECONDS * 120);
 
   let [cities, setCities] = useLocalStorage("cities", initialCities);
 
@@ -543,6 +565,9 @@ const Main = () => {
   let dateRotation = getDateRotation(pickedDate);
   let dayRotation = getDayRotation(pickedDate);
   let totalRotation = ((dateRotation + dayRotation) % 360) - 180;
+
+  let moonAngle = getMoonAngle(pickedDate);
+  // Todo: fix dateRotation, sunAngle discrepancy
 
   const centerX = width / 2;
   const centerY = height / 2;
@@ -785,16 +810,7 @@ const Main = () => {
               <g clipPath="url(#nightClip)">{mapSvg(nightColors)}</g>
             </g>
             <g>{dateline(pickedDate)}</g>
-            <g
-              key={"moon"}
-              transform={`translate(${centerX + paddingX / 2}, ${
-                centerY + paddingY / 2
-              }) rotate(${-getMoonAngle(pickedDate)}) translate(${
-                width / 2 + 42
-              }, 0) `}
-            >
-              <circle cx={0} cy={0} r={12} fill={"red"} />
-            </g>
+
             <g>
               {cities.map((cityData) => {
                 let {
@@ -905,6 +921,27 @@ const Main = () => {
                   </g>
                 );
               })}
+            </g>
+            <g
+              key={"moon"}
+              transform={`translate(${centerX + paddingX / 2}, ${
+                centerY + paddingY / 2
+              }) rotate(${-moonAngle}) translate(${width / 2 + 42}, 0) `}
+            >
+              <circle cx={0} cy={0} r={12} fill={"oklch(0.56 0.06 199.91)"} />
+              <g transform={`rotate(${moonAngle - dateRotation + 90})`}>
+                <path d="M 0 -12 A 12 12 0 0 1 0 12" fill="white " />
+                {/* <text
+                  textAnchor="middle"
+                  x={0}
+                  y={-12 - 4}
+                  fill="white"
+                  className="text-xs"
+                >
+                  {getMoonPhaseName(moonAngle)}
+                </text> */}
+              </g>
+              <rect x={0} y={-12} height={24} width={1} rx={2} fill={"black"} />
             </g>
           </svg>
         </div>
