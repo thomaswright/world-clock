@@ -7,7 +7,7 @@ import { geoAzimuthalEqualArea, geoCircle, geoPath, geoContains } from "d3";
 const world = topojson.feature(topology, topology.objects.units);
 import * as solar from "solar-calculator";
 import Slider from "./Slider";
-import CitiesDialog from "./CitiesDialog";
+import CitiesDialog, { makeKey } from "./CitiesDialog";
 
 let initialCities = [
   {
@@ -713,25 +713,13 @@ const Main = () => {
               addedCities={cities}
               addCity={(newCity) => {
                 setCities((v) => [
-                  ...v.filter(
-                    (match) =>
-                      !(
-                        match.city === newCity.city &&
-                        match.country === newCity.country
-                      )
-                  ),
+                  ...v.filter((match) => !(makeKey(match) == makeKey(newCity))),
                   newCity,
                 ]);
               }}
               removeCity={(newCity) => {
                 setCities((v) =>
-                  v.filter(
-                    (match) =>
-                      !(
-                        match.city === newCity.city &&
-                        match.country === newCity.country
-                      )
-                  )
+                  v.filter((match) => !(makeKey(match) == makeKey(newCity)))
                 );
               }}
             />
@@ -788,7 +776,14 @@ const Main = () => {
             </g>
             <g>{dateline(pickedDate)}</g>
             <g>
-              {cities.map(({ lat: cityLat, lng: cityLon, city, timezone }) => {
+              {cities.map((cityData) => {
+                let {
+                  lat: cityLat,
+                  lng: cityLon,
+                  city,
+                  timezone,
+                  country,
+                } = cityData;
                 let [x, y] = getProjection(totalRotation)()([cityLon, cityLat]);
                 let isNight = geoContains(currentNightPath, [cityLon, cityLat]);
                 let pointDiameter = 6;
@@ -804,7 +799,7 @@ const Main = () => {
 
                 return (
                   <g
-                    key={String(cityLat) + String(cityLon)}
+                    key={makeKey(cityData)}
                     transform={`translate(${paddingX / 2}, ${paddingY / 2})`}
                   >
                     <circle
@@ -818,7 +813,14 @@ const Main = () => {
                   </g>
                 );
               })}
-              {cities.map(({ lat: cityLat, lng: cityLon, city, timezone }) => {
+              {cities.map((cityData) => {
+                let {
+                  lat: cityLat,
+                  lng: cityLon,
+                  city,
+                  timezone,
+                  country,
+                } = cityData;
                 let cityAngle = -(totalRotation + cityLon) + 90;
                 let x = centerX + 30;
                 let y = 0;
@@ -843,7 +845,7 @@ const Main = () => {
 
                 return (
                   <g
-                    key={String(cityLat) + String(cityLon)}
+                    key={makeKey(cityData)}
                     transform={`translate(${centerX + paddingX / 2}, ${
                       centerY + paddingY / 2
                     })`}

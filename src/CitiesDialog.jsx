@@ -9,10 +9,21 @@ import {
   CircleIcon,
 } from "@radix-ui/react-icons";
 import * as cityTimeZones from "city-timezones";
+
+export function makeKey({ city, country, province, lat, lng }) {
+  return JSON.stringify({
+    city,
+    country,
+    province,
+    lat,
+    lng,
+  });
+}
+
 const CitiesDialog = ({ addedCities, addCity, removeCity }) => {
   let [search, setSearch] = useState("");
   return (
-    <Dialog.Root>
+    <Dialog.Root open={true}>
       <Dialog.Trigger asChild>
         <button className="text-white inline-flex items-center justify-center rounded-full border-white py-3 bg-transparent px-4 font-medium leading-none  focus:outline-none z-10">
           Edit Cities
@@ -43,22 +54,24 @@ const CitiesDialog = ({ addedCities, addCity, removeCity }) => {
               ).map((result) => {
                 return (
                   <div
-                    key={String(result.lat) + String(result.lon)}
+                    key={makeKey(result)}
                     className="py-2 px-2 flex flex-row justify-between items-center"
                   >
                     <div className="flex-1">
                       <div className="text-white font-bold leading-none pb-1">
                         {result.city}
                       </div>
-                      <div className="text-sm text-gray-300 leading-none">
-                        {result.country}
+                      <div className="text-sm  leading-none">
+                        <span className="text-gray-300">{result.province}</span>
+                        <span> </span>
+                        <span className="text-gray-500 font-bold">
+                          {result.iso2}
+                        </span>
                       </div>
                     </div>
                     {addedCities &&
                     addedCities.filter(
-                      (match) =>
-                        match.city === result.city &&
-                        match.country === result.country
+                      (match) => makeKey(match) === makeKey(result)
                     ).length > 0 ? (
                       <div className="mr-1">
                         <button
