@@ -1,5 +1,5 @@
 import { CustomProjection, Graticule } from "@visx/geo";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, memo } from "react";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import * as topojson from "topojson-client";
 import topology from "./world-topo.json";
@@ -219,6 +219,8 @@ const getHeight = () => {
 };
 
 const height = getHeight();
+const centerX = width / 2;
+const centerY = height / 2;
 
 let getNightPath = (time) => {
   return geoCircle()
@@ -571,6 +573,76 @@ const MoonPhase = ({ moonPhaseAngle }) => {
   );
 };
 
+const DayProjection = memo(
+  () => (
+    <CustomProjection data={world.features} projection={getProjection(0)}>
+      {(projection) => {
+        return (
+          <g>
+            <circle
+              cx={centerX}
+              cy={centerY}
+              r={centerX - 1}
+              fill={dayColors.sea}
+            />
+
+            <Graticule
+              graticule={(g) => projection.path(g) || ""}
+              stroke={dayColors.graticule}
+            />
+
+            {projection.features.map(({ feature, path }, i) => (
+              <path
+                key={`map-feature-${i}`}
+                d={path || ""}
+                fill={dayColors.land}
+                stroke={dayColors.border}
+                strokeWidth={0.5}
+              />
+            ))}
+          </g>
+        );
+      }}
+    </CustomProjection>
+  ),
+  () => true
+);
+
+const NightProjection = memo(
+  () => (
+    <CustomProjection data={world.features} projection={getProjection(0)}>
+      {(projection) => {
+        return (
+          <g>
+            <circle
+              cx={centerX}
+              cy={centerY}
+              r={centerX - 1}
+              fill={nightColors.sea}
+            />
+
+            <Graticule
+              graticule={(g) => projection.path(g) || ""}
+              stroke={nightColors.graticule}
+            />
+
+            {projection.features.map(({ feature, path }, i) => (
+              <path
+                key={`map-feature-${i}`}
+                d={path || ""}
+                fill={nightColors.land}
+                stroke={nightColors.border}
+                strokeWidth={0.5}
+              />
+            ))}
+          </g>
+        );
+      }}
+    </CustomProjection>
+  ),
+  () => true
+);
+
 const Main = () => {
   let now = new Date();
   // let test = new Date(now.getTime() + DAY_MILLISECONDS * 120);
@@ -611,44 +683,6 @@ const Main = () => {
   // Todo: fix dateRotation, sunAngle discrepancy
 
   let moonPhaseAngle = (moonAngle - dateRotation + 90 + 360) % 360;
-
-  const centerX = width / 2;
-  const centerY = height / 2;
-
-  let mapSvg = (colors) => (
-    <CustomProjection
-      data={world.features}
-      projection={getProjection(totalRotation)}
-    >
-      {(projection) => {
-        return (
-          <g>
-            <circle
-              cx={centerX}
-              cy={centerY}
-              r={centerX - 1}
-              fill={colors.sea}
-            />
-
-            <Graticule
-              graticule={(g) => projection.path(g) || ""}
-              stroke={colors.graticule}
-            />
-
-            {projection.features.map(({ feature, path }, i) => (
-              <path
-                key={`map-feature-${i}`}
-                d={path || ""}
-                fill={colors.land}
-                stroke={colors.border}
-                strokeWidth={0.5}
-              />
-            ))}
-          </g>
-        );
-      }}
-    </CustomProjection>
-  );
 
   let dateline = (time) => {
     let dayEndAngle = -(totalRotation + 90);
@@ -907,9 +941,7 @@ const Main = () => {
           >
             <defs>
               <clipPath id="nightClip">
-                <path
-                  d={geoPath(getProjection(totalRotation)())(currentNightPath)}
-                />
+                <path d={geoPath(getProjection()())(currentNightPath)} />
               </clipPath>
               <clipPath id="antarcticaClip">
                 <circle r={centerX - 0} cx={centerX} cy={centerY} />
@@ -917,11 +949,15 @@ const Main = () => {
             </defs>
 
             <g
-              transform={`translate(${paddingX / 2}, ${paddingY / 2})`}
+              transform={`translate(${paddingX / 2 + centerX}, ${
+                paddingY / 2 + centerY
+              }) rotate(${-totalRotation}) translate(${-centerX}, ${-centerY})`}
               clipPath="url(#antarcticaClip)"
             >
-              {mapSvg(dayColors)}
-              <g clipPath="url(#nightClip)">{mapSvg(nightColors)}</g>
+              <DayProjection />
+              <g clipPath="url(#nightClip)">
+                <NightProjection />
+              </g>
             </g>
             <g>{dateline(pickedDate)}</g>
 
