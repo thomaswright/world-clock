@@ -239,17 +239,13 @@ function getTimeStringInTimezone(time, timezone) {
   });
 }
 
-function getDayOfYear(date) {
-  const start = new Date(date.getFullYear(), 0, 1);
-  const diff = date - start;
-  const dayOfYear = Math.ceil(diff / DAY_MILLISECONDS);
-  return dayOfYear;
-}
-
 function getDateRotation(time) {
   let summerSolstice = 173;
-  let dayOffset = getDayOfYear(time) - summerSolstice;
-  return (dayOffset / 365) * 360;
+  const yearStart = new Date(time.getFullYear(), 0, 1);
+  const diff = time - yearStart;
+  let dayPercent = diff / DAY_MILLISECONDS;
+  let dayOffset = dayPercent - summerSolstice;
+  return (dayOffset / 365.2422) * 360;
 }
 
 function getDayRotation(time) {
