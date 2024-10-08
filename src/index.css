@@ -27,7 +27,7 @@ html {
   --model-orbit: hsl(300, 42%, 41%);
   --model-earth-gray: hsl(300, 12%, 48%);
   --model-earth-white: #fff;
-  --model-moon: hsl(300, 12%, 48%);
+  --model-moon: #fff;
   --model-sun: hsl(52, 100%, 50%);
 
   --credit: hsl(213, 100%, 58%);
