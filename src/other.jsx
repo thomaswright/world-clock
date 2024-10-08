@@ -116,69 +116,6 @@ let DAY_MILLISECONDS = 1000 * 60 * 60 * 24;
 
 // # Options
 
-// const nightColors = {
-//   sea: "#00132D",
-//   graticule: "#2441A1",
-//   land: "#3CC071",
-//   border: "#003301",
-//   city: "#fff",
-// };
-
-// const dayColors = {
-//   sea: "#b6e3ff",
-//   graticule: "#96C7FF",
-//   land: "#f1dcc2",
-//   border: "#806127",
-//   city: "#000",
-// };
-
-// const weekdayColors = {
-//   day1: "#F3FF8C",
-//   day2: "#FF9DA5",
-// };
-
-const nightColors = {
-  sea: "#000",
-  graticule: "#442000",
-  land: "#ff6100",
-  border: "#442000",
-  city: "#fff",
-};
-
-const dayColors = {
-  sea: "#fff",
-  graticule: "#c2deff",
-  land: "#00b0ff",
-  border: "#004e70",
-  city: "#000",
-};
-
-const weekdayColors = {
-  day1: dayColors.land,
-  day2: nightColors.land,
-};
-
-// const nightColors = {
-//   sea: "#000",
-//   graticule: "#442000",
-//   land: " #FFD83B ",
-//   border: "#442000",
-//   city: "#fff",
-// };
-
-// const dayColors = {
-//   sea: "#fff",
-//   graticule: "#c2deff",
-//   land: "#00BDDA",
-//   border: "#004e70",
-//   city: "#000",
-// };
-
-// const weekdayColors = {
-//   day1: "#FF62B3",
-//   day2: "#03E8B3",
-// };
-
 let timeValWidth = DAY_MILLISECONDS * 3;
 let dayValWidth = 360;
 
@@ -533,7 +470,7 @@ const StarSVG = ({ width, height }) => {
     <svg width={width} height={height} viewBox="0 0 200 200">
       <g
         transform="matrix(1,0,0,1,-200.381,-195.367) matrix(0.755146,0,0,0.755146,-57.9159,-27.9865)"
-        fill={"yellow"}
+        fill={"var(--model-sun)"}
       >
         <path
           d="M474.474,302.332L506.279,368.713L578.008,352.192L545.939,418.446L603.579,
@@ -560,10 +497,10 @@ const MoonPhase = ({ moonPhaseAngle }) => {
 
   return (
     <svg viewBox={`0 0 120 120`}>
-      <circle cx={60} cy={60} r={50} fill={"#467F82"} />
+      <circle cx={60} cy={60} r={50} fill={"var(--moon-gray)"} />
       <path
         d={`M 60 10 A ${minorAxis} 50 0 0 ${sweepFlag1} 60 110 A 1 1 0 0 ${sweepFlag2} 60 10`}
-        fill="white "
+        fill="var(--moon-white) "
       />
     </svg>
   );
@@ -579,20 +516,20 @@ const DayProjection = memo(
               cx={centerX}
               cy={centerY}
               r={centerX - 1}
-              fill={dayColors.sea}
+              fill={"var(--day-sea)"}
             />
 
             <Graticule
               graticule={(g) => projection.path(g) || ""}
-              stroke={dayColors.graticule}
+              stroke={"var(--day-graticule)"}
             />
 
             {projection.features.map(({ feature, path }, i) => (
               <path
                 key={`map-feature-${i}`}
                 d={path || ""}
-                fill={dayColors.land}
-                stroke={dayColors.border}
+                fill={"var(--day-land)"}
+                stroke={"var(--day-border)"}
                 strokeWidth={0.5}
               />
             ))}
@@ -614,20 +551,20 @@ const NightProjection = memo(
               cx={centerX}
               cy={centerY}
               r={centerX - 1}
-              fill={nightColors.sea}
+              fill={"var(--night-sea)"}
             />
 
             <Graticule
               graticule={(g) => projection.path(g) || ""}
-              stroke={nightColors.graticule}
+              stroke={"var(--night-graticule)"}
             />
 
             {projection.features.map(({ feature, path }, i) => (
               <path
                 key={`map-feature-${i}`}
                 d={path || ""}
-                fill={nightColors.land}
-                stroke={nightColors.border}
+                fill={"var(--night-land)"}
+                stroke={"var(--night-border)"}
                 strokeWidth={0.5}
               />
             ))}
@@ -686,8 +623,8 @@ const Main = () => {
     let strokeWidth = 3;
     let beforeNoon = time.getUTCHours() < 12;
     let swap = dayParity(time) === beforeNoon;
-    let color1 = swap ? weekdayColors.day1 : weekdayColors.day2;
-    let color2 = swap ? weekdayColors.day2 : weekdayColors.day1;
+    let color1 = swap ? "var(--weekday1)" : "var(--weekday2)";
+    let color2 = swap ? "var(--weekday2)" : "var(--weekday1)";
     let today = getTodayDayString(time);
     let tomorrow = getTomorrowDayString(time);
     let yesterday = getYesterdayDayString(time);
@@ -814,7 +751,7 @@ const Main = () => {
       <div className="w-full flex flex-col items-center px-6 pt-2 sm:-mb-6">
         <div className="w-full max-w-xl">
           <div className=" flex flex-row justify-between items-center w-full ">
-            <div className="font-thin tracking-widest uppercase text-white text-xl ">
+            <div className="font-bold tracking-tight text-white text-2xl ">
               World Clock
             </div>
             <CitiesDialog
@@ -837,7 +774,7 @@ const Main = () => {
               <svg viewBox={`0 0 120 120`}>
                 <g transform="translate(60, 60)">
                   <circle
-                    stroke={"#5E5E5E"}
+                    stroke={"var(--model-orbit)"}
                     strokeWidth={2}
                     r={40}
                     cx={0}
@@ -868,14 +805,22 @@ const Main = () => {
                       -dateRotation - 90
                     }) translate(40, 0)`}
                   >
-                    <circle fill={"#0062B8"} r={8} cx={0} cy={0} />
-                    <path d="M 0 -8 A 8 8 0 0 0 0 8" fill="white " />
+                    <circle
+                      fill={"var(--model-earth-gray)"}
+                      r={8}
+                      cx={0}
+                      cy={0}
+                    />
+                    <path
+                      d="M 0 -8 A 8 8 0 0 0 0 8"
+                      fill="var(--model-earth-white)"
+                    />
                     <g
                       transform={`rotate(${
                         -moonAngle + dateRotation
                       }) translate(0, 16)`}
                     >
-                      <circle fill={"white"} r={3} cx={0} cy={0} />
+                      <circle fill={"var(--model-moon)"} r={3} cx={0} cy={0} />
                     </g>
                     {/* 
                       <g transform={`translate(0, 20) rotate(${-moonAngle}) `}>
@@ -973,11 +918,11 @@ const Main = () => {
 
                 let color = dayTimezoneParity(pickedDate, timezone)
                   ? isNight
-                    ? weekdayColors.day2 // "#fff"
-                    : weekdayColors.day2
+                    ? "var(--weekday2)"
+                    : "var(--weekday2)"
                   : isNight
-                  ? weekdayColors.day1 //"#000"
-                  : weekdayColors.day1;
+                  ? "var(--weekday1)"
+                  : "var(--weekday1)";
 
                 return (
                   <g
@@ -1016,8 +961,8 @@ const Main = () => {
 
                 let isNight = geoContains(currentNightPath, [cityLon, cityLat]);
                 let color = dayTimezoneParity(pickedDate, timezone)
-                  ? weekdayColors.day2
-                  : weekdayColors.day1;
+                  ? "var(--weekday2)"
+                  : "var(--weekday1)";
 
                 let [lineX, lineY] = rotatePoint(
                   0,
@@ -1075,9 +1020,9 @@ const Main = () => {
                 centerY + paddingY / 2
               }) rotate(${-moonAngle}) translate(${width / 2 + 42}, 0) `}
             >
-              <circle cx={0} cy={0} r={12} fill={"#467F82"} />
+              <circle cx={0} cy={0} r={12} fill={"var(--moon-gray)"} />
               <g transform={`rotate(${moonAngle - dateRotation + 90})`}>
-                <path d="M 0 -12 A 12 12 0 0 1 0 12" fill="white " />
+                <path d="M 0 -12 A 12 12 0 0 1 0 12" fill="var(--moon-white)" />
                 {/* <text
                   textAnchor="middle"
                   x={0}
@@ -1088,7 +1033,14 @@ const Main = () => {
                   {getMoonPhaseName(moonAngle)}
                 </text> */}
               </g>
-              <rect x={0} y={-12} height={24} width={1} rx={2} fill={"black"} />
+              <rect
+                x={0}
+                y={-12}
+                height={24}
+                width={1}
+                rx={2}
+                fill={"var(--moon-line)"}
+              />
             </g>
           </svg>
         </div>
@@ -1099,8 +1051,8 @@ const Main = () => {
             <input
               className="my-2 py-1 rounded "
               style={{
-                backgroundColor: "black",
-                color: nightColors.land,
+                backgroundColor: "transparent",
+                color: "var(--night-land)",
               }}
               type="datetime-local"
               value={new Date(
@@ -1131,7 +1083,7 @@ const Main = () => {
                 styles={{
                   Root: {},
                   Track: {
-                    backgroundColor: nightColors.land,
+                    backgroundColor: "var(--night-land)",
                   },
                 }}
                 min={0}
@@ -1157,8 +1109,8 @@ const Main = () => {
                   <button
                     className=" rounded-full py-2 px-4 "
                     style={{
-                      color: nightColors.land,
-                      borderColor: nightColors.land,
+                      color: "var(--night-land)",
+                      borderColor: "var(--night-land)",
                     }}
                     onClick={(_) => {
                       setInputDate(null);
@@ -1175,7 +1127,7 @@ const Main = () => {
                 styles={{
                   Root: {},
                   Track: {
-                    backgroundColor: nightColors.land,
+                    backgroundColor: "var(--night-land)",
                   },
                 }}
                 min={0}
@@ -1198,10 +1150,10 @@ const Main = () => {
           </div>
         </div>
       </div>
-      <div className="text-neutral-300 text-xs text-center p-6 py-3 ">
+      <div className="text-white text-xs text-center p-6 py-3 ">
         {"By "}
         <a
-          className="text-blue-500 font-medium"
+          className="font-medium text-[var(--credit)]"
           href={"https://github.com/thomaswright/world-clock"}
         >
           {"Thomas Wright"}
@@ -1210,33 +1162,5 @@ const Main = () => {
     </div>
   );
 };
-
-// <g
-//   key={"sun"}
-//   transform={`translate(${centerX + paddingX / 2}, ${
-//     centerY + paddingY / 2
-//   }) rotate(${-dateRotation + 90}) translate(${
-//     width / 2 + 42
-//   }, 0) `}
-// >
-//   <rect
-//     x={-10}
-//     y={-10}
-//     height={20}
-//     width={20}
-//     // rx={2}
-//     fill={"yellow"}
-//   />
-//   <rect
-//     transform="rotate(45)"
-//     x={-10}
-//     y={-10}
-//     height={20}
-//     width={20}
-//     // rx={2}
-//     fill={"yellow"}
-//   />
-//   {/* <circle cx={0} cy={0} r={9} fill={"black"} /> */}
-// </g>
 
 export default Main;

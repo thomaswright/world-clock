@@ -3,8 +3,34 @@
 @tailwind utilities;
 
 html {
-  @apply bg-black;
   overscroll-behavior: none;
+  background-color: hsl(300, 100%, 5%);
+  --night-sea: hsl(300, 100%, 5%);
+  --night-graticule: hsl(10, 100%, 13%);
+  --night-land: hsl(10, 100%, 50%);
+  --night-border: hsl(10, 100%, 13%);
+  --night-city: #fff;
+
+  --day-sea: #fff;
+  --day-graticule: hsl(213, 100%, 88%);
+  --day-land: hsl(213, 100%, 58%);
+  --day-border: hsl(213, 100%, 22%);
+  --day-city: #000;
+
+  --moon-white: #ffffff;
+  --moon-gray: hsl(300, 12%, 48%);
+  --moon-line: hsl(300, 100%, 5%);
+
+  --weekday1: var(--day-land);
+  --weekday2: var(--night-land);
+
+  --model-orbit: hsl(300, 42%, 41%);
+  --model-earth-gray: hsl(300, 12%, 48%);
+  --model-earth-white: #fff;
+  --model-moon: hsl(300, 12%, 48%);
+  --model-sun: hsl(52, 100%, 50%);
+
+  --credit: hsl(213, 100%, 58%);
 }
 
 input[type="datetime-local"] {
