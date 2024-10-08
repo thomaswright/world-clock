@@ -1049,7 +1049,7 @@ const Main = () => {
         <div className="w-full max-w-xl">
           <div className=" flex flex-col sm:flex-row justify-between items-center w-full">
             <input
-              className="my-2 py-1 rounded "
+              className="my-2 py-1 rounded font-bold"
               style={{
                 backgroundColor: "transparent",
                 color: "var(--night-land)",
@@ -1075,7 +1075,7 @@ const Main = () => {
           <div className="flex flex-col sm:flex-row sm:gap-4">
             <div className="w-full">
               <div className=" flex flex-row justify-between items-center w-full">
-                <div className="text-white py-2 font-medium">Adjust Time</div>
+                <div className="text-white py-2 font-bold">Adjust Time</div>
               </div>
 
               <Slider
@@ -1104,7 +1104,7 @@ const Main = () => {
             </div>
             <div className="w-full">
               <div className=" flex flex-row justify-between items-center w-full">
-                <div className="text-white py-2 font-medium">Adjust Day</div>
+                <div className="text-white py-2 font-bold">Adjust Day</div>
                 {Boolean(inputDate) ? (
                   <button
                     className=" rounded-full py-2 px-4 "
@@ -1150,10 +1150,10 @@ const Main = () => {
           </div>
         </div>
       </div>
-      <div className="text-white text-xs text-center p-6 py-3 ">
+      <div className="text-white text-xs text-center p-6 py-3 font-bold ">
         {"By "}
         <a
-          className="font-medium text-[var(--credit)]"
+          className=" text-[var(--credit)]"
           href={"https://github.com/thomaswright/world-clock"}
         >
           {"Thomas Wright"}
