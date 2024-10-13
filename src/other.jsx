@@ -313,8 +313,8 @@ const SvgArc = ({
     return arcSwitch ? (clockwise ? "1 1" : "0 0") : clockwise ? "0 1" : "1 0";
   };
 
-  const [pathLength, setPathLength] = useState(0);
-  const pathRef = useRef(null);
+  // const [pathLength, setPathLength] = useState(0);
+  // const pathRef = useRef(null);
 
   // Convert angles from degrees to radians
   const startAngleRad = (startAngle * Math.PI) / 180;
@@ -338,15 +338,15 @@ const SvgArc = ({
   const tx2 = cx + tr * Math.cos(endAngleRad);
   const ty2 = cy + tr * Math.sin(endAngleRad);
 
-  const calcStartOffset = (percentage, extraPx, pathLength) => {
-    return percentage * pathLength + extraPx;
-  };
+  // const calcStartOffset = (percentage, extraPx, pathLength) => {
+  //   return percentage * pathLength + extraPx;
+  // };
 
-  useEffect(() => {
-    if (pathRef.current) {
-      setPathLength(pathRef.current.getTotalLength());
-    }
-  }, [time]);
+  // useEffect(() => {
+  //   if (pathRef.current) {
+  //     setPathLength(pathRef.current.getTotalLength());
+  //   }
+  // }, [time]);
 
   return (
     <g>
@@ -358,7 +358,7 @@ const SvgArc = ({
         fill={fill}
       />
       <path
-        ref={pathRef}
+        // ref={pathRef}
         id={id}
         d={`M ${tx1} ${ty1} A ${tr} ${tr} 0 ${getLengthFlags()} ${tx2} ${ty2}`}
         stroke={"none"}
@@ -371,7 +371,7 @@ const SvgArc = ({
           href={`#${id}`}
           startOffset={"35%"}
           textAnchor="start"
-          side={clockwise ? "left" : "right"}
+          // side={clockwise ? "left" : "right"}
         >
           {text}
         </textPath>
