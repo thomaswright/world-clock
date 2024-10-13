@@ -304,63 +304,56 @@ const SvgArc = ({
   stroke = "red",
   fill = "transparent",
   strokeWidth = 1,
-  time,
+  beforeNoon,
 }) => {
-  let hours = time.getUTCHours();
-  let arcSwitch = hours >= 12 && hours < 24;
-
-  let getLengthFlags = () => {
-    return arcSwitch ? (clockwise ? "1 1" : "0 0") : clockwise ? "0 1" : "1 0";
-  };
-
-  // const [pathLength, setPathLength] = useState(0);
-  // const pathRef = useRef(null);
-
   // Convert angles from degrees to radians
   const startAngleRad = (startAngle * Math.PI) / 180;
   const endAngleRad = (endAngle * Math.PI) / 180;
 
-  // Calculate the start point of the arc
   const x1 = cx + r * Math.cos(startAngleRad);
   const y1 = cy + r * Math.sin(startAngleRad);
 
-  // Calculate the end point of the arc
   const x2 = cx + r * Math.cos(endAngleRad);
   const y2 = cy + r * Math.sin(endAngleRad);
 
   let tr = r + (isFirefox ? 8 : 12);
 
-  // Calculate the start point of the arc
   const tx1 = cx + tr * Math.cos(startAngleRad);
   const ty1 = cy + tr * Math.sin(startAngleRad);
 
-  // Calculate the end point of the arc
   const tx2 = cx + tr * Math.cos(endAngleRad);
   const ty2 = cy + tr * Math.sin(endAngleRad);
 
-  // const calcStartOffset = (percentage, extraPx, pathLength) => {
-  //   return percentage * pathLength + extraPx;
-  // };
+  // no padding
+  let p1 = `M ${x1} ${y1} A ${r} ${r} 0 0 0 ${x2} ${y2}`;
+  let p2 = `M ${x1} ${y1} A ${r} ${r} 0 1 1 ${x2} ${y2}`;
+  let p3 = `M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}`;
+  let p4 = `M ${x1} ${y1} A ${r} ${r} 0 1 0 ${x2} ${y2}`;
 
-  // useEffect(() => {
-  //   if (pathRef.current) {
-  //     setPathLength(pathRef.current.getTotalLength());
-  //   }
-  // }, [time]);
+  // with padding (for text)
+  let tp1 = `M ${tx1} ${ty1} A ${tr} ${tr} 0 0 0 ${tx2} ${ty2}`;
+  let tp2 = `M ${tx1} ${ty1} A ${tr} ${tr} 0 1 1 ${tx2} ${ty2}`;
+  let tp3 = `M ${tx1} ${ty1} A ${tr} ${tr} 0 0 1 ${tx2} ${ty2}`;
+  let tp4 = `M ${tx1} ${ty1} A ${tr} ${tr} 0 1 0 ${tx2} ${ty2}`;
+
+  // with padding, path reversed (for text)
+  let tpf1 = `M ${tx2} ${ty2} A ${tr} ${tr} 0 0 0 ${tx1} ${ty1}`;
+  let tpf2 = `M ${tx2} ${ty2} A ${tr} ${tr} 0 1 1 ${tx1} ${ty1}`;
+  let tpf3 = `M ${tx2} ${ty2} A ${tr} ${tr} 0 0 1 ${tx1} ${ty1}`;
+  let tpf4 = `M ${tx2} ${ty2} A ${tr} ${tr} 0 1 0 ${tx1} ${ty1}`;
 
   return (
     <g>
       <path
-        d={`M ${x1} ${y1} A ${r} ${r} 0 ${getLengthFlags()} ${x2} ${y2}`}
+        d={beforeNoon ? (clockwise ? p3 : p4) : clockwise ? p2 : p1}
         stroke={stroke}
         strokeWidth={strokeWidth}
         strokeDasharray={clockwise ? "2,5" : "2,5"}
         fill={fill}
       />
       <path
-        // ref={pathRef}
         id={id}
-        d={`M ${tx1} ${ty1} A ${tr} ${tr} 0 ${getLengthFlags()} ${tx2} ${ty2}`}
+        d={beforeNoon ? (clockwise ? tp3 : tpf2) : clockwise ? tp2 : tpf3}
         stroke={"none"}
         strokeWidth={strokeWidth}
         fill={"none"}
@@ -371,7 +364,6 @@ const SvgArc = ({
           href={`#${id}`}
           startOffset={"35%"}
           textAnchor="start"
-          // side={clockwise ? "left" : "right"}
         >
           {text}
         </textPath>
@@ -649,7 +641,7 @@ const Main = () => {
           clockwise={true}
           stroke={color1}
           strokeWidth={strokeWidth}
-          time={pickedDate}
+          beforeNoon={beforeNoon}
         />
         <SvgArc
           id={"counter-clockwise"}
@@ -662,7 +654,7 @@ const Main = () => {
           clockwise={false}
           stroke={color2}
           strokeWidth={strokeWidth}
-          time={pickedDate}
+          beforeNoon={beforeNoon}
         />
         <rect
           x={centerX}
