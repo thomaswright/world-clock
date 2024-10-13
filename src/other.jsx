@@ -478,6 +478,7 @@ const MoonPhase = ({ moonPhaseAngle }) => {
   let phase = moonPhaseAngle / 360;
   let theta = Math.PI * phase * 2;
   let minorAxis = 50 * Math.abs(Math.cos(theta));
+
   let [sweepFlag1, sweepFlag2] =
     phase < 0.25
       ? [1, 0]
@@ -607,7 +608,7 @@ const Main = () => {
   let moonAngle = getMoonAngle(pickedDate);
   // Todo: fix dateRotation, sunAngle discrepancy
 
-  let moonPhaseAngle = (moonAngle - dateRotation + 90 + 360) % 360;
+  let moonPhaseAngle = (moonAngle + 360) % 360;
 
   let dateline = (time) => {
     let dayEndAngle = -(totalRotation + 90);
@@ -1011,10 +1012,12 @@ const Main = () => {
               key={"moon"}
               transform={`translate(${centerX + paddingX / 2}, ${
                 centerY + paddingY / 2
-              }) rotate(${-moonAngle}) translate(${width / 2 + 42}, 0) `}
+              }) rotate(${-moonAngle - dateRotation + 90}) translate(${
+                width / 2 + 42
+              }, 0) `}
             >
               <circle cx={0} cy={0} r={12} fill={"var(--moon-gray)"} />
-              <g transform={`rotate(${moonAngle - dateRotation + 90})`}>
+              <g transform={`rotate(${moonAngle})`}>
                 <path d="M 0 -12 A 12 12 0 0 1 0 12" fill="var(--moon-white)" />
                 {/* <text
                   textAnchor="middle"
