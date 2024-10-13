@@ -776,6 +776,7 @@ const Main = () => {
                   <circle
                     stroke={"var(--model-orbit)"}
                     strokeWidth={2}
+                    fill={"none"}
                     r={40}
                     cx={0}
                     cy={0}
