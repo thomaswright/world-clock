@@ -810,9 +810,7 @@ const Main = () => {
                       fill="var(--model-earth-white)"
                     />
                     <g
-                      transform={`rotate(${
-                        -moonAngle + dateRotation
-                      }) translate(0, 16)`}
+                      transform={`rotate(${-moonAngle + 90}) translate(0, 16)`}
                     >
                       <circle fill={"var(--model-moon)"} r={3} cx={0} cy={0} />
                     </g>
