@@ -1145,7 +1145,7 @@ const Main = () => {
         </div>
       </div>
       <div className="text-white text-xs text-center p-6 py-3 font-bold ">
-        {"By "}
+        {"Made by "}
         <a
           className=" text-[var(--credit)]"
           href={"https://github.com/thomaswright/world-clock"}

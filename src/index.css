@@ -4,10 +4,10 @@
 
 html {
   overscroll-behavior: none;
-  background-color: hsl(300, 100%, 5%);
-  --night-sea: hsl(300, 100%, 5%);
+  background-color: hsl(0 0% 0%);
+  --night-sea: hsl(0 0% 0%);
   --night-graticule: hsl(10, 100%, 13%);
-  --night-land: hsl(10, 100%, 50%);
+  --night-land: hsl(15, 100%, 50%);
   --night-border: hsl(10, 100%, 13%);
   --night-city: #fff;
 
@@ -18,14 +18,14 @@ html {
   --day-city: #000;
 
   --moon-white: #ffffff;
-  --moon-gray: hsl(300, 12%, 48%);
-  --moon-line: hsl(300, 100%, 5%);
+  --moon-gray: hsl(213, 12%, 48%);
+  --moon-line: hsl(213, 100%, 5%);
 
   --weekday1: var(--day-land);
   --weekday2: var(--night-land);
 
-  --model-orbit: hsl(300, 42%, 41%);
-  --model-earth-gray: hsl(300, 12%, 48%);
+  --model-orbit: hsl(213.13 75.81% 42.16%);
+  --model-earth-gray: hsl(15.18 100% 33.33%);
   --model-earth-white: #fff;
   --model-moon: #fff;
   --model-sun: hsl(52, 100%, 50%);
