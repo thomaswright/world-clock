@@ -25,7 +25,7 @@ const CitiesDialog = ({ addedCities, addCity, removeCity }) => {
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
-        <button className="text-white inline-flex items-center justify-center rounded-full border-white py-3 bg-transparent px-4 font-bold leading-none  focus:outline-none z-10">
+        <button className="text-gray-500 inline-flex items-center justify-center rounded-full border-white py-3 bg-transparent px-4 font-bold leading-none  focus:outline-none z-10">
           Edit Cities
         </button>
       </Dialog.Trigger>

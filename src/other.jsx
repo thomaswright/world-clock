@@ -744,9 +744,13 @@ const Main = () => {
       <div className="w-full flex flex-col items-center px-6 pt-2 sm:-mb-6">
         <div className="w-full max-w-xl">
           <div className=" flex flex-row justify-between items-center w-full ">
-            <div className="font-bold tracking-tight text-white text-2xl ">
+            <div
+              style={{ lineHeight: "0.8" }}
+              className=" font-black tracking-tight text-[var(--night-land)] text-5xl opacity-30 "
+            >
               World Clock
             </div>
+            <div />
             <CitiesDialog
               addedCities={cities}
               addCity={(newCity) => {
@@ -835,7 +839,7 @@ const Main = () => {
             <div id={"moonPhase"} className="w-12 h-12 absolute right-0 ">
               <MoonPhase moonPhaseAngle={moonPhaseAngle} />
 
-              <div className="text-white text-xs font-thin w-full text-center">
+              <div className="text-white text-xs font-normal w-full text-center">
                 {getMoonPhaseName(moonPhaseAngle)}
               </div>
             </div>
@@ -1070,6 +1074,9 @@ const Main = () => {
             <div className="w-full">
               <div className=" flex flex-row justify-between items-center w-full">
                 <div className="text-white py-2 font-bold">Adjust Time</div>
+                <div className="text-gray-400 text-sm font-medium">
+                  (or drag the Earth)
+                </div>
               </div>
 
               <Slider
@@ -1144,14 +1151,16 @@ const Main = () => {
           </div>
         </div>
       </div>
-      <div className="text-white text-xs text-center p-6 py-3 font-bold ">
-        {"By "}
-        <a
-          className=" text-[var(--credit)]"
-          href={"https://github.com/thomaswright/world-clock"}
-        >
-          {"Thomas Wright"}
-        </a>
+      <div>
+        <div className="text-white text-xs text-center p-6 py-3 font-bold ">
+          {"By "}
+          <a
+            className=" text-[var(--credit)]"
+            href={"https://github.com/thomaswright/world-clock"}
+          >
+            {"Thomas Wright"}
+          </a>
+        </div>
       </div>
     </div>
   );
